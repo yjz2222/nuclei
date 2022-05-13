@@ -167,13 +167,13 @@ func (s *Server) GetScanTmpStatus(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse scan id").Error())
 	}
-	m := make(map[interface{}]interface{})
+	m := make([]interface{}, 0, 128)
 	ts := s.scans.ExecStatus(id)
 	if ts == nil {
 		return echo.NewHTTPError(500, errors.Wrap(err, "there is no running scans").Error())
 	}
 	ts.Range(func(key, value interface{}) bool {
-		m[key] = value
+		m = append(m, key)
 		return true
 	})
 	return ctx.JSON(200, m)
