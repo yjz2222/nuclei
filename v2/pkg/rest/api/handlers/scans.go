@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"github.com/spf13/cast"
 	"io"
 	"strconv"
 	"strings"
@@ -18,7 +19,7 @@ import (
 // AddScanRequest is a request for /scans addition
 type AddScanRequest struct {
 	Name              string   `json:"name"`
-	Templates         []string `json:"templates"`
+	Templates         []int    `json:"templates"`
 	Targets           []string `json:"targets"`
 	Config            string   `json:"config"` // nuclei config, default -> "default"
 	RunNow            bool     `json:"runNow"`
@@ -40,12 +41,16 @@ func (s *Server) AddScan(ctx echo.Context) error {
 		targets[i] = value
 	}
 	hostCount := scans.CalculateTargetCount(req.Targets, s.db)
+	tpsIdStr := make([]string, 0, len(req.Templates))
+	for i := range req.Templates {
+		tpsIdStr = append(tpsIdStr, cast.ToString(req.Templates[i]))
+	}
 	id, err := s.db.AddScan(context.Background(), dbsql.AddScanParams{
 		Name:              req.Name,
 		Status:            "scheduled",
 		Hosts:             hostCount,
 		Scansource:        req.ScanSource,
-		Templates:         req.Templates,
+		Templates:         tpsIdStr,
 		Targets:           targets,
 		Config:            sql.NullString{String: req.Config, Valid: true},
 		Runnow:            sql.NullBool{Bool: req.RunNow, Valid: true},
@@ -190,9 +195,13 @@ func (s *Server) ExecuteScan(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(500, errors.Wrap(err, "could not get scan from db").Error())
 	}
+	tplsInt := make([]int, 0, len(scan.Templates))
+	for i := range scan.Templates {
+		tplsInt = append(tplsInt, cast.ToInt(scan.Templates[i]))
+	}
 	s.scans.Queue(scans.ScanRequest{
 		ScanID:    id,
-		Templates: scan.Templates,
+		Templates: tplsInt,
 		Targets:   scan.Targets,
 		Config:    scan.Config.String,
 		Reporting: scan.Reporting.String,

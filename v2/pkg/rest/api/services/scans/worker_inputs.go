@@ -47,7 +47,7 @@ func (s *ScanService) inputProviderFromRequest(inputsList []string) (core.InputP
 
 // storeTemplatesFromRequest writes templates from db to a temporary
 // on disk directory for the duration of the scan.
-func (s *ScanService) storeTemplatesFromRequest(templatesList []string) (string, []string, []string, error) {
+func (s *ScanService) storeTemplatesFromRequest(templatesList []int) (string, []string, []string, error) {
 	directory, err := ioutil.TempDir("", "nuclei-templates-*")
 	if err != nil {
 		return "", nil, nil, err

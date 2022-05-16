@@ -36,7 +36,7 @@ type Querier interface {
 	GetTemplatesByFolder(ctx context.Context, folder string) ([]GetTemplatesByFolderRow, error)
 	GetTemplatesByFolderOne(ctx context.Context, folder string) (GetTemplatesByFolderOneRow, error)
 	GetTemplatesBySearchKey(ctx context.Context, arg GetTemplatesBySearchKeyParams) ([]GetTemplatesBySearchKeyRow, error)
-	GetTemplatesForScan(ctx context.Context, folder string) ([]GetTemplatesForScanRow, error)
+	GetTemplatesForScan(ctx context.Context, id int) ([]GetTemplatesForScanRow, error)
 	GetVersion(ctx context.Context) (string, error)
 	InsertOrUpdateVersion(ctx context.Context, templates string) error
 	SetSettings(ctx context.Context, arg SetSettingsParams) error

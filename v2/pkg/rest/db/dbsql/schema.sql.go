@@ -1002,16 +1002,18 @@ func (q *Queries) GetTemplatesBySearchKey(ctx context.Context, arg GetTemplatesB
 }
 
 const getTemplatesForScan = `-- name: GetTemplatesForScan :many
-SELECT path, contents FROM public.templates WHERE folder=$1 OR path=$1 OR path LIKE $1||'%'
+SELECT path, contents FROM public.templates WHERE id=$1
 `
+
+//这里查找有问题，还是应该给template加上templateID字段进行严格匹配，加上id = $1 or
 
 type GetTemplatesForScanRow struct {
 	Path     string
 	Contents string
 }
 
-func (q *Queries) GetTemplatesForScan(ctx context.Context, folder string) ([]GetTemplatesForScanRow, error) {
-	rows, err := q.db.Query(ctx, getTemplatesForScan, folder)
+func (q *Queries) GetTemplatesForScan(ctx context.Context, id int) ([]GetTemplatesForScanRow, error) {
+	rows, err := q.db.Query(ctx, getTemplatesForScan, id)
 	if err != nil {
 		return nil, err
 	}

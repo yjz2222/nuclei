@@ -3,6 +3,7 @@ package scans
 import (
 	"context"
 	"database/sql"
+	"github.com/spf13/cast"
 	"log"
 	"strconv"
 	"sync"
@@ -45,7 +46,7 @@ func (r *RunningScan) Stop() {
 type ScanRequest struct {
 	ScanID     int64
 	ScanSource string
-	Templates  []string
+	Templates  []int
 	Targets    []string
 	Config     string
 	RunNow     bool
@@ -178,11 +179,16 @@ func (s *ScanService) queueScansForSchedule(schedule string) {
 	if err != nil {
 		return
 	}
+
 	for _, scan := range scans {
+		tplsInt := make([]int, 0, len(scan.Templates))
+		for i := range scan.Templates {
+			tplsInt = append(tplsInt, cast.ToInt(scan.Templates[i]))
+		}
 		s.Queue(ScanRequest{
 			ScanID:     scan.ID,
 			ScanSource: scan.Scansource,
-			Templates:  scan.Templates,
+			Templates:  tplsInt,
 			Targets:    scan.Targets,
 			Config:     scan.Config.String,
 			Reporting:  scan.Reporting.String,
