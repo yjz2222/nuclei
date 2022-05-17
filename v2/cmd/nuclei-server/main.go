@@ -31,9 +31,9 @@ var (
 	json    = flag.Bool("json", false, "show json logs")
 
 	token = flag.String("token", "", "Token for mypoc REST API")
-	host  = flag.String("host", "localhost", "Host to listen REST API on")
+	host  = flag.String("host", "0.0.0.0", "Host to listen REST API on")
 	port  = flag.Int("port", 8822, "Port to listen REST API on")
-	dburl = flag.String("db-url", "postgres://postgres:mysecretpassword@localhost:5432/postgres", "database connection url for postgres db")
+	dburl = flag.String("db-url", "postgres://postgres:mysecretpassword@postgres.server:5432/postgres", "database connection url for postgres db")
 )
 
 func main() {
