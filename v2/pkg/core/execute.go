@@ -9,6 +9,7 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 	"github.com/spf13/cast"
 	"go.uber.org/atomic"
+	"log"
 	"sync"
 	"time"
 )
@@ -34,7 +35,7 @@ func SetTemplateStatus(tplID string, status int) {
 }
 
 //var TemplateTimestamp map[string][]stamp
-var TemplateTimestamp sync.Map
+var TemplateTimestamp *sync.Map
 
 type stamp struct {
 	Content   string
@@ -58,15 +59,17 @@ func AddTemplateTimestamp(tplId, ct, color, msg string, status int) {
 	//}
 	//stamps := v.([]stamp)
 	//stamps = append(stamps, s)
+	v := []stamp{}
 	TemplateTimestamp.Range(func(key, value interface{}) bool {
 		if cast.ToString(key) == tplId {
-			stamps := value.([]stamp)
-			stamps = append(stamps, s)
-			value = stamps
+			v = value.([]stamp)
+			log.Println("get stamp slice:", cast.ToString(key))
 			return false
 		}
 		return true
 	})
+	v = append(v, s)
+	TemplateTimestamp.Store(tplId, v)
 }
 
 // Execute takes a list of templates/workflows that have been compiled
@@ -81,7 +84,7 @@ func (e *Engine) Execute(ctx context.Context, templates []*templates.Template, t
 // ExecuteWithOpts executes with the full options
 func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates.Template, target InputProvider, noCluster bool) *atomic.Bool {
 	RunningStatus = make([]map[string]interface{}, 0, len(templatesList))
-	TemplateTimestamp = sync.Map{}
+	TemplateTimestamp = new(sync.Map)
 	var finalTemplates []*templates.Template
 	if !noCluster {
 		finalTemplates, _ = templates.ClusterTemplates(templatesList, e.executerOpts)
