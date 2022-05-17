@@ -2,23 +2,23 @@ package core
 
 import (
 	"context"
-	"github.com/remeh/sizedwaitgroup"
-	"github.com/spf13/cast"
-	"go.uber.org/atomic"
-
 	"github.com/projectdiscovery/gologger"
 	"github.com/projectdiscovery/nuclei/v2/pkg/templates"
 	"github.com/projectdiscovery/nuclei/v2/pkg/templates/types"
 	generalTypes "github.com/projectdiscovery/nuclei/v2/pkg/types"
+	"github.com/remeh/sizedwaitgroup"
+	"github.com/spf13/cast"
+	"go.uber.org/atomic"
+	"time"
 )
 
 /*
 临时处理
 */
-var RunningStatus []map[string]any
+var RunningStatus []map[string]interface{}
 
 func NewTemplateStatus(tplID string, status int) {
-	m := make(map[string]any)
+	m := make(map[string]interface{})
 	m["templateId"] = tplID
 	m["status"] = status
 	RunningStatus = append(RunningStatus, m)
@@ -32,6 +32,27 @@ func SetTemplateStatus(tplID string, status int) {
 	}
 }
 
+var TemplateTimestamp map[string][]stamp
+
+type stamp struct {
+	Content   string
+	Timestamp string
+	Color     string
+	Status    int
+	Msg       string
+}
+
+func AddTemplateTimestamp(tplId, ct, color, msg string, status int) {
+	s := stamp{
+		Content:   ct,
+		Color:     color,
+		Status:    status,
+		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
+		Msg:       msg,
+	}
+	TemplateTimestamp[tplId] = append(TemplateTimestamp[tplId], s)
+}
+
 // Execute takes a list of templates/workflows that have been compiled
 // and executes them based on provided concurrency options.
 //
@@ -43,7 +64,8 @@ func (e *Engine) Execute(ctx context.Context, templates []*templates.Template, t
 
 // ExecuteWithOpts executes with the full options
 func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates.Template, target InputProvider, noCluster bool) *atomic.Bool {
-	RunningStatus = make([]map[string]any, 0, len(templatesList))
+	RunningStatus = make([]map[string]interface{}, 0, len(templatesList))
+	TemplateTimestamp = make(map[string][]stamp)
 	var finalTemplates []*templates.Template
 	if !noCluster {
 		finalTemplates, _ = templates.ClusterTemplates(templatesList, e.executerOpts)
@@ -76,7 +98,10 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 
 		wg.Add()
 		go func(tpl *templates.Template) {
+			//初始化
 			NewTemplateStatus(tpl.ID, 1)
+			TemplateTimestamp[tpl.ID] = make([]stamp, 0, 8)
+			AddTemplateTimestamp(tpl.ID, "开始时间", "#409EFF", "", 0)
 			switch {
 			case tpl.SelfContained:
 				// Self Contained requests are executed here separately
@@ -91,6 +116,7 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 					RunningStatus[i]["status"] = 4
 				}
 			}
+			AddTemplateTimestamp(tpl.ID, "结束时间", "#409EFF", "", 0)
 			wg.Done()
 		}(template)
 	}

@@ -43,6 +43,21 @@ func (w *wrappedOutputWriter) Colorizer() aurora.Aurora {
 	return w.colorizer
 }
 
+//临时处理
+func genJsonStr(event *output.ResultEvent) string {
+	m := make(map[string]interface{})
+	m["Reference"] = event.Info.Reference.ToSlice()
+	m["Severity"] = event.Info.SeverityHolder.Severity.String()
+	m["Matchername"] = event.MatcherName
+	m["Extractorname"] = event.ExtractorName
+	m["Request"] = event.Request
+	m["Response"] = event.Response
+	m["Ip"] = event.IP
+	m["Curlcommand"] = event.CURLCommand
+	s, _ := jsoniter.MarshalToString(&m)
+	return s
+}
+
 // Write writes the event to file and/or screen.
 func (w *wrappedOutputWriter) Write(event *output.ResultEvent) error {
 	description := event.Info.Name
@@ -71,6 +86,7 @@ func (w *wrappedOutputWriter) Write(event *output.ResultEvent) error {
 	}
 	//todo 这里是match入口
 	core.SetTemplateStatus(event.TemplateID, 2)
+	core.AddTemplateTimestamp(event.TemplateID, "成功", "#409EFF", genJsonStr(event), 1)
 	_, err := w.db.AddIssue(context.Background(), dbsql.AddIssueParams{
 		Template:         event.Template,
 		Templateurl:      sql.NullString{String: event.TemplateURL, Valid: true},
@@ -130,6 +146,7 @@ func (w *wrappedOutputWriter) Request(templateID, url, requestType string, err e
 		return
 	}
 	core.SetTemplateStatus(templateID, 3)
+	core.AddTemplateTimestamp(templateID, "失败", "#409EFF", err.Error(), 2)
 	_ = jsoniter.NewEncoder(w.logs).Encode(ScanErrorLogEvent{
 		Template: templateID,
 		URL:      url,

@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"github.com/projectdiscovery/nuclei/v2/pkg/core"
 	"github.com/spf13/cast"
 	"io"
 	"strconv"
@@ -167,21 +168,40 @@ func (s *Server) GetScanProgress(ctx echo.Context) error {
 
 // GetScanTmpStatus handlers /scans/:id/progress route
 func (s *Server) GetScanTmpStatus(ctx echo.Context) error {
-	queryParam := ctx.Param("id")
-	id, err := strconv.ParseInt(queryParam, 10, 64)
-	if err != nil {
-		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse scan id").Error())
-	}
-	m := make([]interface{}, 0, 128)
-	ts := s.scans.ExecStatus(id)
-	if ts == nil {
-		return echo.NewHTTPError(500, errors.Wrap(err, "there is no running scans").Error())
-	}
-	ts.Range(func(key, value interface{}) bool {
-		m = append(m, key)
-		return true
-	})
-	return ctx.JSON(200, m)
+	//queryParam := ctx.Param("id")
+	//id, err := strconv.ParseInt(queryParam, 10, 64)
+	//if err != nil {
+	//	return echo.NewHTTPError(400, errors.Wrap(err, "could not parse scan id").Error())
+	//}
+	//m := make([]interface{}, 0, 128)
+	//ts := s.scans.ExecStatus(id)
+	//if ts == nil {
+	//	return echo.NewHTTPError(500, errors.Wrap(err, "there is no running scans").Error())
+	//}
+	//ts.Range(func(key, value interface{}) bool {
+	//	m = append(m, key)
+	//	return true
+	//})
+	return ctx.JSON(200, core.RunningStatus)
+}
+
+// GetScanTmpStamp  handlers /scans/:tid route
+func (s *Server) GetScanTmpStamp(ctx echo.Context) error {
+	tid := ctx.Param("tid")
+	//id, err := strconv.ParseInt(queryParam, 10, 64)
+	//if err != nil {
+	//	return echo.NewHTTPError(400, errors.Wrap(err, "could not parse scan id").Error())
+	//}
+	//m := make([]interface{}, 0, 128)
+	//ts := s.scans.ExecStatus(id)
+	//if ts == nil {
+	//	return echo.NewHTTPError(500, errors.Wrap(err, "there is no running scans").Error())
+	//}
+	//ts.Range(func(key, value interface{}) bool {
+	//	m = append(m, key)
+	//	return true
+	//})
+	return ctx.JSON(200, core.TemplateTimestamp[tid])
 }
 
 // ExecuteScan handlers /scans/:id/execute execution route

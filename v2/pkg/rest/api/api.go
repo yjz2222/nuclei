@@ -89,6 +89,8 @@ func New(config *Config) *API {
 	apiGroup.GET("/scans/:id/errors", config.Server.GetScanErrors)
 	//获取模板执行进度
 	apiGroup.GET("/scans/:id/progress", config.Server.GetScanTmpStatus)
+	//获取当前或上一次执行的某个模板的时间轴
+	apiGroup.GET("/scans/:tid/stamp", config.Server.GetScanTmpStamp)
 
 	// /issues endpoints
 	apiGroup.GET("/issues", config.Server.GetIssues)
