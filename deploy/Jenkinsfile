@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    environment {
+        GITLAB_CRED_ID = '8b586ea0-0a94-4237-80dc-35c4964d2ae0'
+        BRANCH = "api-feature"
+    }
+    stages {
+        stage('docker build') {
+            environment {
+                IMAGE_HOST = '10.10.30.42'
+                IMAGE_NAME = "mypoc/poc-server"
+                DOCKER_ENDPOINT = 'docker -H "tcp://10.10.30.6:2380"'
+            }
+            steps {
+                cleanWs()
+                git branch: "${env.BRANCH}", credentialsId: "${env.GITLAB_CRED_ID}",
+                url: 'http://git.vackbot.com/mypoc/poc-server.git'
+                sh "mv deploy/Dockerfile ."
+                sh "${env.DOCKER_ENDPOINT} build . -t ${env.IMAGE_HOST}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+                sh "${env.DOCKER_ENDPOINT} tag ${env.IMAGE_HOST}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}" +
+                    " ${env.IMAGE_HOST}/${env.IMAGE_NAME}:latest"
+                withCredentials([usernamePassword(credentialsId: '305d0148-85f1-4a92-ae01-51800e8300b9', passwordVariable: 'dockerPassword', usernameVariable: 'dockerUser')]) {
+                    sh "${env.DOCKER_ENDPOINT} login -u ${dockerUser} -p ${dockerPassword} http://10.10.30.42"
+                    sh "${env.DOCKER_ENDPOINT} push ${env.IMAGE_HOST}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    sh "${env.DOCKER_ENDPOINT} push ${env.IMAGE_HOST}/${env.IMAGE_NAME}:latest"
+                }
+            }
+        }
+    }
+}
