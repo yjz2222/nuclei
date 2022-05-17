@@ -1,6 +1,6 @@
 FROM golang:1.17.6-alpine as builder
 COPY . /app
-RUN go env -w GOPROXY=https://goproxy.cn,direct \
+RUN go env -w GOPROXY=http://10.10.30.7/repository/goproxy/,direct \
     && cd /app/v2 && go mod tidy \
     && go build -o mypoc /app/v2/cmd/nuclei-server/main.go
 
