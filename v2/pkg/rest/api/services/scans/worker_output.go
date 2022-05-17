@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"database/sql"
+	"github.com/projectdiscovery/nuclei/v2/pkg/core"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -68,6 +69,8 @@ func (w *wrappedOutputWriter) Write(event *output.ResultEvent) error {
 		data, _ := jsoniter.Marshal(event.Interaction)
 		interaction = string(data)
 	}
+	//todo 这里是match入口
+	core.SetTemplateStatus(event.TemplateID, 2)
 	_, err := w.db.AddIssue(context.Background(), dbsql.AddIssueParams{
 		Template:         event.Template,
 		Templateurl:      sql.NullString{String: event.TemplateURL, Valid: true},
@@ -121,11 +124,12 @@ type ScanErrorLogEvent struct {
 	Error    string `json:"error"`
 }
 
-// Request logs a request in the trace log
+// Request logs a request in the trace log  //todo 这里是错误入口
 func (w *wrappedOutputWriter) Request(templateID, url, requestType string, err error) {
 	if err == nil {
 		return
 	}
+	core.SetTemplateStatus(templateID, 3)
 	_ = jsoniter.NewEncoder(w.logs).Encode(ScanErrorLogEvent{
 		Template: templateID,
 		URL:      url,

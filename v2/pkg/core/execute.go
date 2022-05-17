@@ -2,10 +2,8 @@ package core
 
 import (
 	"context"
-	"log"
-	"sync"
-
 	"github.com/remeh/sizedwaitgroup"
+	"github.com/spf13/cast"
 	"go.uber.org/atomic"
 
 	"github.com/projectdiscovery/gologger"
@@ -13,6 +11,26 @@ import (
 	"github.com/projectdiscovery/nuclei/v2/pkg/templates/types"
 	generalTypes "github.com/projectdiscovery/nuclei/v2/pkg/types"
 )
+
+/*
+临时处理
+*/
+var RunningStatus []map[string]any
+
+func NewTemplateStatus(tplID string, status int) {
+	m := make(map[string]any)
+	m["templateId"] = tplID
+	m["status"] = status
+	RunningStatus = append(RunningStatus, m)
+}
+func SetTemplateStatus(tplID string, status int) {
+	for i := range RunningStatus {
+		if cast.ToString(RunningStatus[i]["templateId"]) == tplID {
+			RunningStatus[i]["status"] = status
+			return
+		}
+	}
+}
 
 // Execute takes a list of templates/workflows that have been compiled
 // and executes them based on provided concurrency options.
@@ -25,6 +43,7 @@ func (e *Engine) Execute(ctx context.Context, templates []*templates.Template, t
 
 // ExecuteWithOpts executes with the full options
 func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates.Template, target InputProvider, noCluster bool) *atomic.Bool {
+	RunningStatus = make([]map[string]any, 0, len(templatesList))
 	var finalTemplates []*templates.Template
 	if !noCluster {
 		finalTemplates, _ = templates.ClusterTemplates(templatesList, e.executerOpts)
@@ -32,14 +51,14 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 		finalTemplates = templatesList
 	}
 
-	tsAny := ctx.Value("ts")
-	if tsAny == nil {
-		log.Fatal("load fail~~!!!")
-	}
-	ts, ok := tsAny.(*sync.Map)
-	if !ok {
-		log.Fatal("断言失败~~!!!")
-	}
+	//tsAny := ctx.Value("ts")
+	//if tsAny == nil {
+	//	log.Fatal("load fail~~!!!")
+	//}
+	//ts, ok := tsAny.(*sync.Map)
+	//if !ok {
+	//	log.Fatal("断言失败~~!!!")
+	//}
 
 	results := &atomic.Bool{}
 	for _, template := range finalTemplates {
@@ -56,9 +75,8 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 		}
 
 		wg.Add()
-		go func(tpl *templates.Template, tsVar *sync.Map) {
-			tsVar.Store(tpl.ID, "running")
-			defer tsVar.Delete(tpl.ID)
+		go func(tpl *templates.Template) {
+			NewTemplateStatus(tpl.ID, 1)
 			switch {
 			case tpl.SelfContained:
 				// Self Contained requests are executed here separately
@@ -67,8 +85,14 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 				// All other request types are executed here
 				e.executeModelWithInput(ctx, templateType, tpl, target, results)
 			}
+			for i := range RunningStatus {
+				if cast.ToString(RunningStatus[i]["templateId"]) == tpl.ID && cast.ToInt(RunningStatus[i]["status"]) == 1 {
+					//即没有命中也没有错误，普通的暂无结果
+					RunningStatus[i]["status"] = 4
+				}
+			}
 			wg.Done()
-		}(template, ts)
+		}(template)
 	}
 	e.workPool.Wait()
 	return results
