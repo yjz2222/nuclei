@@ -201,7 +201,8 @@ func (s *Server) GetScanTmpStamp(ctx echo.Context) error {
 	//	m = append(m, key)
 	//	return true
 	//})
-	return ctx.JSON(200, core.TemplateTimestamp[tid])
+	v, _ := core.TemplateTimestamp.Load(tid)
+	return ctx.JSON(200, v)
 }
 
 // ExecuteScan handlers /scans/:id/execute execution route
