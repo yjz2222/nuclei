@@ -831,7 +831,7 @@ const getTemplates = `-- name: GetTemplates :many
 SELECT id, name, folder, "path", createdat, updatedat, hash
 FROM
 	"public".templates
-ORDER BY id
+ORDER BY id desc 
 LIMIT $2 offset $1
 `
 
