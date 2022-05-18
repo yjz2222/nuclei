@@ -9,68 +9,8 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 	"github.com/spf13/cast"
 	"go.uber.org/atomic"
-	"log"
 	"sync"
-	"time"
 )
-
-/*
-临时处理
-*/
-var RunningStatus []map[string]interface{}
-
-func NewTemplateStatus(tplID string, status int) {
-	m := make(map[string]interface{})
-	m["templateId"] = tplID
-	m["status"] = status
-	RunningStatus = append(RunningStatus, m)
-}
-func SetTemplateStatus(tplID string, status int) {
-	for i := range RunningStatus {
-		if cast.ToString(RunningStatus[i]["templateId"]) == tplID {
-			RunningStatus[i]["status"] = status
-			return
-		}
-	}
-}
-
-//var TemplateTimestamp map[string][]stamp
-var TemplateTimestamp *sync.Map
-
-type stamp struct {
-	Content   string
-	Timestamp string
-	Color     string
-	Status    int
-	Msg       string
-}
-
-func AddTemplateTimestamp(tplId, ct, color, msg string, status int) {
-	s := stamp{
-		Content:   ct,
-		Color:     color,
-		Status:    status,
-		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
-		Msg:       msg,
-	}
-	//v, ok := TemplateTimestamp.Load(tplId)
-	//if !ok {
-	//	return
-	//}
-	//stamps := v.([]stamp)
-	//stamps = append(stamps, s)
-	v := []stamp{}
-	TemplateTimestamp.Range(func(key, value interface{}) bool {
-		if cast.ToString(key) == tplId {
-			v = value.([]stamp)
-			log.Println("get stamp slice:", cast.ToString(key))
-			return false
-		}
-		return true
-	})
-	v = append(v, s)
-	TemplateTimestamp.Store(tplId, v)
-}
 
 // Execute takes a list of templates/workflows that have been compiled
 // and executes them based on provided concurrency options.

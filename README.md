@@ -524,13 +524,51 @@ https://www.bilibili.com
 > 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/9/progress`
 
 ```
-{
-  "rdp-detect": "running",
-  "confluence-detect": "running",
-  "CVE-2021-21389": "running",
-  "CVE-2002-1131": "running",
-  "aem-merge-metadata-servlet": "running",
-  "CVE-2010-4719": "running",
-  "CVE-2014-4940": "running"
-}
+[
+    {
+      "templateId": "tp1",
+      "status": 1
+    },
+    {
+      "templateId": "tp2",
+      "status": 2
+    },
+    {
+      "templateId": "tp3",
+      "status": 3
+    }
+]
+```
+
+### 7. 根据templateId获取时间轴信息
+
+- 请求方式：`GET`
+- 接口地址：`/scans/:tid/stamp`
+
+> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/tpId1/stamp`
+
+```
+[
+    {
+      "content": "开始时间",
+      "color": "#409EFF",
+      "status": 0,
+      "timestamp": "2006-01-02 15:04:05",
+      "msg": ""
+    },
+    {
+      "content": "成功",
+      "color": "#409EFF",
+      "status": 1,
+      "timestamp": "2006-01-02 15:04:05",
+      "msg": "{\"test\":\"a\"}"
+    },
+    {
+      "content": "结束时间",
+      "color": "#409EFF",
+      "status": 0,
+      "timestamp": "2006-01-02 15:04:05",
+      "msg": ""
+    }
+]
 ```

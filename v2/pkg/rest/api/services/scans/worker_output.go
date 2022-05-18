@@ -50,8 +50,8 @@ func genJsonStr(event *output.ResultEvent) string {
 	m["Severity"] = event.Info.SeverityHolder.Severity.String()
 	m["Matchername"] = event.MatcherName
 	m["Extractorname"] = event.ExtractorName
-	m["Request"] = event.Request
-	m["Response"] = event.Response
+	m["matchedAt"] = event.Matched
+	m["tags"] = event.Info.Tags.ToSlice()
 	m["Ip"] = event.IP
 	m["Curlcommand"] = event.CURLCommand
 	s, _ := jsoniter.MarshalToString(&m)
