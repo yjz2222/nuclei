@@ -1,323 +1,536 @@
-<h1 align="center">
-  <br>
-  <a href="https://nuclei.projectdiscovery.io"><img src="static/nuclei-logo.png" width="200px" alt="Nuclei"></a>
-</h1>
+# MyPoc接口文档
 
-<h4 align="center">Fast and customisable vulnerability scanner based on simple YAML based DSL.</h4>
+测试环境地址前缀为`http://10.10.30.152:8822/api/v1`
 
+以下接口地址需接前缀使用，如接口地址`/templates`,则实际请求地址为`http://10.10.30.152:8822/api/v1/templates`
 
-<p align="center">
-<img src="https://img.shields.io/github/go-mod/go-version/projectdiscovery/nuclei?filename=v2%2Fgo.mod">
-<a href="https://github.com/projectdiscovery/nuclei/releases"><img src="https://img.shields.io/github/downloads/projectdiscovery/nuclei/total">
-<a href="https://github.com/projectdiscovery/nuclei/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/projectdiscovery/nuclei">
-<a href="https://github.com/projectdiscovery/nuclei/releases/"><img src="https://img.shields.io/github/release/projectdiscovery/nuclei">
-<a href="https://github.com/projectdiscovery/nuclei/issues"><img src="https://img.shields.io/github/issues-raw/projectdiscovery/nuclei">
-<a href="https://github.com/projectdiscovery/nuclei/discussions"><img src="https://img.shields.io/github/discussions/projectdiscovery/nuclei">
-<a href="https://discord.gg/projectdiscovery"><img src="https://img.shields.io/discord/695645237418131507.svg?logo=discord"></a>
-<a href="https://twitter.com/pdnuclei"><img src="https://img.shields.io/twitter/follow/pdnuclei.svg?logo=twitter"></a>
-</p>
-      
-<p align="center">
-  <a href="#how-it-works">How</a> •
-  <a href="#install-nuclei">Install</a> •
-  <a href="#for-security-engineers">For Security Engineers</a> •
-  <a href="#for-developers-and-organisations">For Developers</a> •
-  <a href="https://nuclei.projectdiscovery.io/nuclei/get-started/">Documentation</a> •
-  <a href="#credits">Credits</a> •
-  <a href="https://nuclei.projectdiscovery.io/faq/nuclei/">FAQs</a> •
-  <a href="https://discord.gg/projectdiscovery">Join Discord</a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/projectdiscovery/nuclei/blob/master/README.md">English</a> •
-  <a href="https://github.com/projectdiscovery/nuclei/blob/master/README_CN.md">中文</a>
-</p>
+> 所有接口均返回json形式
 
 ---
 
-Nuclei is used to send requests across targets based on a template leading to zero false positives and providing fast scanning on large number of hosts. Nuclei offers scanning for a variety of protocols including TCP, DNS, HTTP, File, etc. With powerful and flexible templating, all kinds of security checks can be modelled with Nuclei.
+## 模板相关接口
 
-We have a [dedicated repository](https://github.com/projectdiscovery/nuclei-templates) that houses various type of vulnerability templates contributed by **more than 300** security researchers and engineers.
+---
 
+### 1. 获取模板
 
+- 请求方式：`GET`
+- 接口地址：`/templates`
 
-## How it works
+|  参数名   |   类型   | 说明             | 示例       |
+|:------:|:------:|:---------------|:---------|
+|  page  |  int   | 页码，默认0，表示第一页   | 12       |
+|  size  |  int   | 每页显示数量，默认每页10条 | 20       |
+| folder | string | 所属文件夹，可以理解为分类  | nuclei   |
+| search | string | 搜索关键字          | http-xxx |
 
+> 返回示例：
 
-<h3 align="center">
-  <img src="static/nuclei-flow.jpg" alt="nuclei-flow" width="700px"></a>
-</h3>
-
-
-# Install Nuclei
-
-Nuclei requires **go1.17** to install successfully. Run the following command to install the latest version -
-
-```sh
-go install -v github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
+```
+[
+  {
+    "id": 1,
+    "name": "TEMPLATES-STATS.json",
+    "folder": "nuclei-templates",
+    "path": "TEMPLATES-STATS.json",
+    "createdAt": "2022-05-07T10:57:07.991806+08:00",
+    "updatedAt": "2022-05-10T00:00:00Z"
+  },
+  {
+    "id": 2,
+    "name": "CNVD-2018-13393.yaml",
+    "folder": "nuclei-templates",
+    "path": "cnvd/2018/CNVD-2018-13393.yaml",
+    "createdAt": "2022-05-07T10:57:07.997368+08:00",
+    "updatedAt": "2022-05-07T00:00:00Z"
+  },
+  {
+    "id": 3,
+    "name": "CNVD-2019-01348.yaml",
+    "folder": "nuclei-templates",
+    "path": "cnvd/2019/CNVD-2019-01348.yaml",
+    "createdAt": "2022-05-07T10:57:07.998883+08:00",
+    "updatedAt": "2022-05-07T00:00:00Z"
+  }
+]
 ```
 
-**More installation [methods can be found here](https://nuclei.projectdiscovery.io/nuclei/get-started/).**
+### 2. 新增模板
 
-<table>
-<tr>
-<td>  
+- 请求方式：`POST`
+- 接口地址：`/templates`
+- 请求类型：`application/json`
 
-### Nuclei Templates
+> 请求示例：其中path为模板的自定义路径，具有唯一性
 
-Nuclei has built-in support for automatic template download/update as default since version [v2.5.2](https://github.com/projectdiscovery/nuclei/releases/tag/v2.5.2). [**Nuclei-Templates**](https://github.com/projectdiscovery/nuclei-templates) project provides a community-contributed list of ready-to-use templates that is constantly updated.
-
-You may still use the `update-templates` flag to update the nuclei templates at any time; You can write your own checks for your individual workflow and needs following Nuclei's [templating guide](https://nuclei.projectdiscovery.io/templating-guide/).
-
-The YAML DSL reference syntax is available [here](SYNTAX-REFERENCE.md).
-
-</td>
-</tr>
-</table>
-
-### Usage
-
-```sh
-nuclei -h
+```
+{
+  "contents": "这里是yaml文件内容的字符串",
+  "folder": "my-templates",
+  "path": "my/2022/my2022-1-1.yaml"
+}
 ```
 
-This will display help for the tool. Here are all the switches it supports.
+> 返回示例：返回新增后入库后的模板ID
 
-
-```yaml
-Nuclei is a fast, template based vulnerability scanner focusing
-on extensive configurability, massive extensibility and ease of use.
-
-Usage:
-  nuclei [flags]
-
-Flags:
-TARGET:
-   -u, -target string[]  target URLs/hosts to scan
-   -l, -list string      path to file containing a list of target URLs/hosts to scan (one per line)
-   -resume               Resume scan using resume.cfg (clustering will be disabled)
-
-TEMPLATES:
-   -t, -templates string[]      template or template directory paths to include in the scan
-   -tu, -template-url string[]  URL containing list of templates to run
-   -nt, -new-templates          run only new templates added in latest nuclei-templates release
-   -w, -workflows string[]      workflow or workflow directory paths to include in the scan
-   -wu, -workflow-url string[]  URL containing list of workflows to run
-   -validate                    validate the passed templates to nuclei
-   -tl                          list all available templates
-
-FILTERING:
-   -tags string[]                    execute a subset of templates that contain the provided tags
-   -itags, -include-tags string[]    tags from the default deny list that permit executing more intrusive templates
-   -etags, -exclude-tags string[]    exclude templates with the provided tags
-   -it, -include-templates string[]  templates to be executed even if they are excluded either by default or configuration
-   -et, -exclude-templates string[]  template or template directory paths to exclude
-   -s, -severity value[]             Templates to run based on severity. Possible values: info, low, medium, high, critical
-   -es, -exclude-severity value[]    Templates to exclude based on severity. Possible values: info, low, medium, high, critical
-   -pt, -type value[]                protocol types to be executed. Possible values: dns, file, http, headless, network, workflow, ssl, websocket, whois
-   -ept, -exclude-type value[]       protocol types to not be executed. Possible values: dns, file, http, headless, network, workflow, ssl, websocket, whois
-   -a, -author string[]              execute templates that are (co-)created by the specified authors
-   -id, -template-id string[]        List of template IDs to run (comma-separated, file)
-   -eid, -exclude-id string[]        List of template IDs to exclude (comma-separated, file)
-
-OUTPUT:
-   -o, -output string            output file to write found issues/vulnerabilities
-   -silent                       display findings only
-   -nc, -no-color                disable output content coloring (ANSI escape codes)
-   -json                         write output in JSONL(ines) format
-   -irr, -include-rr             include request/response pairs in the JSONL output (for findings only)
-   -nm, -no-meta                 don't display match metadata
-   -nts, -no-timestamp           don't display timestamp metadata in CLI output
-   -rdb, -report-db string       local nuclei reporting database (always use this to persist report data)
-   -ms, -matcher-status          show optional match failure status
-   -me, -markdown-export string  directory to export results in markdown format
-   -se, -sarif-export string     file to export results in SARIF format
-
-CONFIGURATIONS:
-   -config string              path to the nuclei configuration file
-   -rc, -report-config string  nuclei reporting module configuration file
-   -H, -header string[]        custom headers in header:value format
-   -V, -var value              custom vars in var=value format
-   -r, -resolvers string       file containing resolver list for nuclei
-   -sr, -system-resolvers      use system DNS resolving as error fallback
-   -passive                    enable passive HTTP response processing mode
-   -ev, -env-vars              enable environment variables to be used in template
-   -cc, -client-cert string    client certificate file (PEM-encoded) used for authenticating against scanned hosts
-   -ck, -client-key string     client key file (PEM-encoded) used for authenticating against scanned hosts
-   -ca, -client-ca string      client certificate authority file (PEM-encoded) used for authenticating against scanned hosts
-   -ztls                       Use ztls library with autofallback to standard one for tls13
-
-INTERACTSH:
-   -iserver, -interactsh-server string  interactsh server url for self-hosted instance (default: oast.pro,oast.live,oast.site,oast.online,oast.fun,oast.me)
-   -itoken, -interactsh-token string    authentication token for self-hosted interactsh server
-   -interactions-cache-size int         number of requests to keep in the interactions cache (default 5000)
-   -interactions-eviction int           number of seconds to wait before evicting requests from cache (default 60)
-   -interactions-poll-duration int      number of seconds to wait before each interaction poll request (default 5)
-   -interactions-cooldown-period int    extra time for interaction polling before exiting (default 5)
-   -ni, -no-interactsh                  disable interactsh server for OAST testing, exclude OAST based templates
-
-RATE-LIMIT:
-   -rl, -rate-limit int            maximum number of requests to send per second (default 150)
-   -rlm, -rate-limit-minute int    maximum number of requests to send per minute
-   -bs, -bulk-size int             maximum number of hosts to be analyzed in parallel per template (default 25)
-   -c, -concurrency int            maximum number of templates to be executed in parallel (default 25)
-   -hbs, -headless-bulk-size int   maximum number of headless hosts to be analyzed in parallel per template (default 10)
-   -hc, -headless-concurrency int  maximum number of headless templates to be executed in parallel (default 10)
-
-OPTIMIZATIONS:
-   -timeout int               time to wait in seconds before timeout (default 5)
-   -retries int               number of times to retry a failed request (default 1)
-   -mhe, -max-host-error int  max errors for a host before skipping from scan (default 30)
-   -project                   use a project folder to avoid sending same request multiple times
-   -project-path string       set a specific project path
-   -spm, -stop-at-first-path  stop processing HTTP requests after the first match (may break template/workflow logic)
-   -stream                    Stream mode - start elaborating without sorting the input
-
-HEADLESS:
-   -headless            enable templates that require headless browser support (root user on linux will disable sandbox)
-   -page-timeout int    seconds to wait for each page in headless mode (default 20)
-   -sb, -show-browser   show the browser on the screen when running templates with headless mode
-   -sc, -system-chrome  Use local installed chrome browser instead of nuclei installed
-
-DEBUG:
-   -debug                    show all requests and responses
-   -debug-req                show all sent requests
-   -debug-resp               show all received responses
-   -p, -proxy string[]       List of HTTP(s)/SOCKS5 proxy to use (comma separated or file input)
-   -tlog, -trace-log string  file to write sent requests trace log
-   -elog, -error-log string  file to write sent requests error log
-   -version                  show nuclei version
-   -v, -verbose              show verbose output
-   -vv                       display templates loaded for scan
-   -tv, -templates-version   shows the version of the installed nuclei-templates
-
-UPDATE:
-   -update                        update nuclei engine to the latest released version
-   -ut, -update-templates         update nuclei-templates to latest released version
-   -ud, -update-directory string  overwrite the default directory to install nuclei-templates
-   -duc, -disable-update-check    disable automatic nuclei/templates update check
-
-STATISTICS:
-   -stats                    display statistics about the running scan
-   -sj, -stats-json          write statistics data to an output file in JSONL(ines) format
-   -si, -stats-interval int  number of seconds to wait between showing a statistics update (default 5)
-   -m, -metrics              expose nuclei metrics on a port
-   -mp, -metrics-port int    port to expose nuclei metrics on (default 9092)
+```
+{
+  "id": 121
+}
 ```
 
-### Running Nuclei
+### 3. 更新模板
 
-Scanning target domain with [community-curated](https://github.com/projectdiscovery/nuclei-templates) nuclei templates.
+- 请求方式：`PUT`
+- 接口地址：`/templates`
+- 请求类型：`application/json`
 
-```sh
-nuclei -u https://example.com
+> 请求示例：
+
+```
+{
+  "contents": "这里是更新后的yaml文件内容的字符串",
+  "path": "my/2022/my2022-1-1.yaml"
+}
 ```
 
-Scanning target URLs with [community-curated](https://github.com/projectdiscovery/nuclei-templates) nuclei templates.
+> 返回示例：此接口成功后无返回数据，只有出错后才有返回，判断是否返回错误即可
 
-```sh
-nuclei -list urls.txt
+```
+{
+  "message": "could not parse template: no template name field provided",
+  "error": "code=400, message=could not parse template: no template name field provided"
+}
 ```
 
-Example of `urls.txt`:
+### 4. 删除模板
 
-```yaml
-http://example.com
-http://app.example.com
-http://test.example.com
-http://uat.example.com
+- 请求方式：`DELETE`
+- 接口地址：`/templates`
+- 请求类型：`application/json`
+
+> 请求示例：
+
+```
+{
+  "path": "my/2022/my2022-1-1.yaml"
+}
 ```
 
-**More detailed examples of running nuclei can be found [here](https://nuclei.projectdiscovery.io/nuclei/get-started/#running-nuclei).**
+> 返回示例：此接口成功后无返回数据，只有出错后才有返回，判断是否返回错误即可
 
-# For Security Engineers
+```
+{
+  "message": "could not parse template: no template name field provided",
+  "error": "code=400, message=could not parse template: no template name field provided"
+}
+```
 
-Nuclei offers great number of features that are helpful for security engineers to customise workflow in their organisation. With the varieties of scan capabilities (like DNS, HTTP, TCP), security engineers can easily create their suite of custom checks with Nuclei.
+### 5. 获取模板原始内容
 
-- Varieties of protocols supported: TCP, DNS, HTTP, File, etc
-- Achieve complex vulnerability steps with workflows and [dynamic requests.](https://blog.projectdiscovery.io/nuclei-unleashed-quickly-write-complex-exploits/)
-- Easy to integrate into CI/CD, designed to be easily integrated into regression cycle to actively check the fix and re-appearance of vulnerability. 
+- 请求方式：`GET`
+- 接口地址：`/templates/raw`
 
-<h1 align="left">
-  <a href="https://nuclei.projectdiscovery.io/nuclei/get-started/"><img src="static/learn-more-button.png" width="170px" alt="Learn More"></a>
-</h1>
-
-<table>
-<tr>
-<td>  
-
-**For Bug Bounty hunters:**
-
-Nuclei allows you to customise your testing approach with your own suite of checks and easily run across your bug bounty programs. Moreover, Nuclei can be easily integrated into any continuous scanning workflow.
-
-- Designed to be easily integrated into other tool workflow.
-- Can process thousands of hosts in few minutes.
-- Easily automate your custom testing approach with our simple YAML DSL.
-
-Please check our other open-source projects that might fit into your bug bounty workflow: [github.com/projectdiscovery](http://github.com/projectdiscovery), we also host daily [refresh of DNS data at Chaos](http://chaos.projectdiscovery.io).
-
-</td>
-</tr>
-</table>
-
-<table>
-<tr>
-<td>
-  
-**For Penetration Testers:**
-
-Nuclei immensely improve how you approach security assessment by augmenting the manual, repetitive processes. Consultancies are already converting their manual assessment steps with Nuclei, it allows them to run set of their custom assessment approach across thousands of hosts in an automated manner. 
-
-Pen-testers get the full power of our public templates and customization capabilities to speed up their assessment process, and specifically with the regression cycle where you can easily verify the fix.
-
-- Easily create your compliance, standards suite (e.g. OWASP Top 10) checklist.
-- With capabilities like [fuzz](https://nuclei.projectdiscovery.io/templating-guide/#advance-fuzzing) and [workflows](https://nuclei.projectdiscovery.io/templating-guide/#workflows), complex manual steps and repetitive assessment can be easily automated with Nuclei.
-- Easy to re-test vulnerability-fix by just re-running the template.
-
-</td>
-</tr>
-</table>
+| 参数名  |   类型   | 说明      | 示例                           |
+|:----:|:------:|:--------|:-----------------------------|
+| path | string | 模板自定义路径 | test/CVE-2022-0378test2.yaml |
 
 
-# For Developers and Organisations
+> 返回示例：
 
-Nuclei is built with simplicity in mind, with the community backed templates by hundreds of security researchers, it allows you to stay updated with the latest security threats using continuous Nuclei scanning on the hosts. It is designed to be easily integrated into regression tests cycle, to verify the fixes and eliminate vulnerabilities from occurring in the future.
+```
+id: CVE-2022-0378test2
 
-- **CI/CD:** Engineers are already utilising Nuclei within their CI/CD pipeline, it allows them to constantly monitor their staging and production environments with customised templates.
-- **Continuous Regression Cycle:** With Nuclei, you can create your custom template on every new identified vulnerability and put into Nuclei engine to eliminate in the continuous regression cycle.
+info:
+  name: Microweber Reflected Cross-Site Scripting
+  author: pikpikcu
+  severity: medium
+  description: Microweber contains a reflected cross-site scripting in Packagist microweber/microweber prior to 1.2.11.
+  reference:
+    - https://nvd.nist.gov/vuln/detail/CVE-2022-0378
+  classification:
+    cvss-metrics: CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N
+    cvss-score: 5.4
+    cve-id: CVE-2022-0378
+    cwe-id: CWE-79
+  metadata:
+    shodan-query: http.favicon.hash:780351152
+  tags: cve,cve2022,microweber,xss
 
-We have [a discussion thread around this](https://github.com/projectdiscovery/nuclei-templates/discussions/693), there are already some bug bounty programs giving incentives to hackers on writing nuclei templates with every submission, that helps them to eliminate the vulnerability across all their assets, as well as to eliminate future risk in reappearing on productions. If you're interested in implementing it in your organisation, feel free to [reach out to us](mailto:contact@projectdiscovery.io). We will be more than happy to help you in the getting started process, or you can also post into the [discussion thread for any help](https://github.com/projectdiscovery/nuclei-templates/discussions/693).
+requests:
+  - method: GET
+    path:
+      - '{{BaseURL}}/module/?module=admin%2Fmodules%2Fmanage&id=test%22+onmousemove%3dalert(document.domain)+xx=%22test&from_url=x'
 
-<h3 align="center">
-  <img src="static/regression-with-nuclei.jpg" alt="regression-cycle-with-nuclei" width="1100px"></a>
-</h3>
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
 
-<h1 align="left">
-  <a href="https://github.com/projectdiscovery/nuclei-action"><img src="static/learn-more-button.png" width="170px" alt="Learn More"></a>
-</h1>
+      - type: word
+        part: body
+        words:
+          - 'mwui_init'
+          - 'onmousemove="alert(document.domain)'
+        condition: and
 
-### Resources
+# Enhanced by mp on 2022/02/28
+```
 
+### 6. 执行单个模板
 
-- [Scanning Live Web Applications with Nuclei in CI/CD Pipeline](https://blog.escape.tech/devsecops-part-iii-scanning-live-web-applications/) by [@TristanKalos](https://twitter.com/TristanKalos)
-- [Community Powered Scanning with Nuclei](https://blog.projectdiscovery.io/community-powered-scanning-with-nuclei/)
-- [Nuclei Unleashed - Quickly write complex exploits](https://blog.projectdiscovery.io/nuclei-unleashed-quickly-write-complex-exploits/)
-- [Nuclei - Fuzz all the things](https://blog.projectdiscovery.io/nuclei-fuzz-all-the-things/)
-- [Nuclei + Interactsh Integration for Automating OOB Testing](https://blog.projectdiscovery.io/nuclei-interactsh-integration/)
-- [Weaponizes nuclei Workflows to Pwn All the Things](https://medium.com/@dwisiswant0/weaponizes-nuclei-workflows-to-pwn-all-the-things-cd01223feb77) by [@dwisiswant0](https://github.com/dwisiswant0)
-- [How to Scan Continuously with Nuclei?](https://medium.com/@dwisiswant0/how-to-scan-continuously-with-nuclei-fcb7e9d8b8b9) by [@dwisiswant0](https://github.com/dwisiswant0)
-- [Hack with Automation !!!](https://dhiyaneshgeek.github.io/web/security/2021/07/19/hack-with-automation/) by [@DhiyaneshGeek](https://github.com/DhiyaneshGeek)
+- 请求方式：`POST`
+- 接口地址：`/templates/execute`
+- 请求类型：`application/json`
 
-### Credits
+> 请求示例：
 
-Thanks to all the amazing community [contributors for sending PRs](https://github.com/projectdiscovery/nuclei/graphs/contributors). Do also check out the below similar open-source projects that may fit in your workflow:
+```
+{
+  "path": "misconfiguration/http-missing-security-headers.yaml",
+  "target": "https://www.baidu.com"
+}
+```
 
-[FFuF](https://github.com/ffuf/ffuf), [Qsfuzz](https://github.com/ameenmaali/qsfuzz), [Inception](https://github.com/proabiral/inception), [Snallygaster](https://github.com/hannob/snallygaster), [Gofingerprint](https://github.com/Static-Flow/gofingerprint), [Sn1per](https://github.com/1N3/Sn1per/tree/master/templates), [Google tsunami](https://github.com/google/tsunami-security-scanner), [Jaeles](https://github.com/jaeles-project/jaeles), [ChopChop](https://github.com/michelin/ChopChop)
+> 返回示例：返回的太大了。。。可以自己用请求示例里的两个参数去请求一下，然后查看返回的数据结构
 
-### License
+## 目标相关接口
 
-Nuclei is distributed under [MIT License](https://github.com/projectdiscovery/nuclei/blob/master/LICENSE.md)
+---
 
-<h1 align="left">
-  <a href="https://discord.gg/projectdiscovery"><img src="static/Join-Discord.png" width="380" alt="Join Discord"></a> <a href="https://nuclei.projectdiscovery.io"><img src="static/check-nuclei-documentation.png" width="380" alt="Check Nuclei Documentation"></a>
-</h1>
+### 1. 获取目标
+
+- 请求方式：`GET`
+- 接口地址：`/targets`
+
+|  参数名   |   类型   | 说明             | 示例  |
+|:------:|:------:|:---------------|:----|
+|  page  |  int   | 页码，默认0，表示第一页   | 12  |
+|  size  |  int   | 每页显示数量，默认每页10条 | 20  |
+| search | string | 搜索关键字          | myT |
+
+> 返回示例：
+
+```
+[
+    {
+        "id": 1,
+        "name": "myTargets1",
+        "internalId": "b18922ae-1370-4dce-a4dc-77228eb5411d",
+        "filename": "targets/my1",
+        "total": 4,
+        "createdAt": "2022-05-12T16:24:25.596047+08:00",
+        "updatedAt": "2022-05-12T16:24:25.596047+08:00"
+    }
+]
+```
+
+### 2. 新增目标集
+
+- 请求方式：`POST`
+- 接口地址：`/targets`
+- 请求类型：`form`
+
+> 请求示例：其中path为目标文件的自定义路径，具有唯一性
+
+|   参数名    |   类型   | 说明            | 示例              |
+|:--------:|:------:|:--------------|:----------------|
+|   path   | string | 页码，默认0，表示第一页  | myTargets/myTs1 |
+|   name   | string | 目标集名称         | myTargets1      |
+| contents |  file  | 按行分割的目标地址集合文件 | targets.txt     |
+
+> 返回示例：返回新增后入库后的目标集ID
+
+```
+{
+  "id": 121
+}
+```
+
+### 3. 修改目标集
+
+- 请求方式：`PUT`
+- 接口地址：`/targets/:id`
+- 请求类型：`form`
+
+> 请求示例：需要修改的目标集的id直接替换接口地址里的`:id`，如需修改id为1的目标集合，
+> 则请求地址为`http://10.10.30.152:8822/api/v1/targets/1`
+
+|   参数名    |   类型   | 说明            | 示例          |
+|:--------:|:------:|:--------------|:------------|
+| contents |  file  | 按行分割的目标地址集合文件 | targets.txt |
+
+> 返回示例：此接口成功后无返回数据，只有出错后才有返回，判断是否返回错误即可
+
+> **此接口为追加模式，并非覆盖，即当前已入库目标集+本次请求的contents内目标**
+
+### 4. 删除目标集
+
+- 请求方式：`DELETE`
+- 接口地址：`/targets/:id`
+
+> 直接替换`:id`为需要删除的目标集合ID即可
+
+> 返回示例：此接口成功后无返回数据，只有出错后才有返回，判断是否返回错误即可
+
+### 5. 查看目标集内容
+
+- 请求方式：`GET`
+- 接口地址：`/targets/:id`
+
+> 直接替换`:id`为需要查看的目标集合ID即可
+
+> 返回示例：直接返回text文本信息`Content-Type=text/plain; charset=utf-8`
+
+```
+https://www.baidu.com
+https://www.163.com
+https://www.bilibili.com
+```
+
+## 配置相关接口
+
+---
+
+### 1. 获取settings
+
+- 请求方式：`GET`
+- 接口地址：`/settings`
+
+> 返回示例：
+
+```
+[
+    {
+        "name": "default",
+        "contents": "tags: []\ninclude-tags: []\nexclude-tags: []\ninclude-templates: []\nexclude-templates: []\nimpact: []\nauthors: []\nreport-config: \"\"\nheaders: {}\nvars: {}\nresolvers: \"\"\nsystem-resolvers: false\nenv-vars: false\nno-interactsh: false\ninteractsh-url: oast.pro,oast.live,oast.site,oast.online,oast.fun,oast.me\ninteractions-cache-size: 5000\ninteractions-eviction: 60\ninteractions-poll-duration: 5\ninteractions-cooldown-period: 5\nrate-limit: 150\nrate-limit-minute: 0\nbulk-size: 25\nconcurrency: 25\nheadless-bulk-size: 10\nheadless-concurrency: 10\ntimeout: 5\nretries: 1\nhost-max-error: 30\nstop-at-first-path: false\nheadless: false\npage-timeout: 0\nproxy-url: \"\"\nproxy-socks-url: \"\"\n",
+        "type": "internal"
+    }
+]
+```
+
+### 2. 新增settings
+
+- 请求方式：`POST`
+- 接口地址：`/settings`
+- 请求类型：`application/json`
+
+> 请求示例：
+
+```
+{
+    "name": "mySettings",
+    "contents": "tags: []\ninclude-tags: []\nexclude-tags: []\ninclude-templates: []\nexclude-templates: []\nimpact: []\nauthors: []\nreport-config: \"\"\nheaders: {}\nvars: {}\nresolvers: \"\"\nsystem-resolvers: false\nenv-vars: false\nno-interactsh: false\ninteractsh-url: oast.pro,oast.live,oast.site,oast.online,oast.fun,oast.me\ninteractions-cache-size: 5000\ninteractions-eviction: 60\ninteractions-poll-duration: 5\ninteractions-cooldown-period: 5\nrate-limit: 200\nrate-limit-minute: 0\nbulk-size: 25\nconcurrency: 32\nheadless-bulk-size: 10\nheadless-concurrency: 10\ntimeout: 5\nretries: 1\nhost-max-error: 30\nstop-at-first-path: false\nheadless: false\npage-timeout: 0\nproxy-url: \"\"\nproxy-socks-url: \"\"\n",
+    "type": "internal"
+}
+```
+
+> 返回示例：此接口成功后无返回数据，只有出错后才有返回，判断是否返回错误即可
+
+### 3. 根据name获取settings
+
+- 请求方式：`GET`
+- 接口地址：`/settings/:name`
+
+> 请求示例：替换`:name`为需要获取的settings的name，
+> 如请求地址为`http://10.10.30.152:8822/api/v1/settings/mySettings`
+
+> 返回示例：
+
+```
+{
+    "name": "mySettings",
+    "contents": "tags: []\ninclude-tags: []\nexclude-tags: []\ninclude-templates: []\nexclude-templates: []\nimpact: []\nauthors: []\nreport-config: \"\"\nheaders: {}\nvars: {}\nresolvers: \"\"\nsystem-resolvers: false\nenv-vars: false\nno-interactsh: false\ninteractsh-url: oast.pro,oast.live,oast.site,oast.online,oast.fun,oast.me\ninteractions-cache-size: 5000\ninteractions-eviction: 60\ninteractions-poll-duration: 5\ninteractions-cooldown-period: 5\nrate-limit: 200\nrate-limit-minute: 0\nbulk-size: 25\nconcurrency: 32\nheadless-bulk-size: 10\nheadless-concurrency: 10\ntimeout: 5\nretries: 1\nhost-max-error: 30\nstop-at-first-path: false\nheadless: false\npage-timeout: 0\nproxy-url: \"\"\nproxy-socks-url: \"\"\n",
+    "type": "internal"
+}
+```
+
+### 4. 根据name修改settings
+
+- 请求方式：`PUT`
+- 接口地址：`/settings/:name`
+- 请求类型：`application/json`
+
+> 请求示例：请求地址`http://10.10.30.152:8822/api/v1/settings/mySettings`，
+> body如下：
+
+```
+{
+    "contents": "tags: []\ninclude-tags: []\nexclude-tags: []\ninclude-templates: []\nexclude-templates: []\nimpact: []\nauthors: []\nreport-config: \"\"\nheaders: {}\nvars: {}\nresolvers: \"\"\nsystem-resolvers: false\nenv-vars: false\nno-interactsh: false\ninteractsh-url: oast.pro,oast.live,oast.site,oast.online,oast.fun,oast.me\ninteractions-cache-size: 5000\ninteractions-eviction: 60\ninteractions-poll-duration: 5\ninteractions-cooldown-period: 5\nrate-limit: 200\nrate-limit-minute: 0\nbulk-size: 25\nconcurrency: 32\nheadless-bulk-size: 10\nheadless-concurrency: 10\ntimeout: 5\nretries: 1\nhost-max-error: 25\nstop-at-first-path: false\nheadless: false\npage-timeout: 0\nproxy-url: \"\"\nproxy-socks-url: \"\"\n",
+    "type": "internal"
+}
+```
+
+> 返回示例：此接口成功后无返回数据，只有出错后才有返回，判断是否返回错误即可
+
+## 执行相关接口
+
+---
+
+### 1. 获取scans
+
+- 请求方式：`GET`
+- 接口地址：`/scans`
+
+|  参数名   |   类型   | 说明             | 示例       |
+|:------:|:------:|:---------------|:---------|
+|  page  |  int   | 页码，默认0，表示第一页   | 12       |
+|  size  |  int   | 每页显示数量，默认每页10条 | 20       |
+| search | string | 搜索关键字          | http-xxx |
+
+> 返回示例：
+
+```
+[
+    {
+        "id": 2,
+        "status": "failed",
+        "name": "test-scan",
+        "templates": [
+            ""
+        ],
+        "targets": [
+            "https://www.baidu.com"
+        ],
+        "runNow": true,
+        "hosts": 1
+    },
+    {
+        "id": 3,
+        "status": "done",
+        "name": "test-scan",
+        "templates": [
+            ""
+        ],
+        "targets": [
+            "https://www.baidu.com"
+        ],
+        "config": "default",
+        "runNow": true,
+        "hosts": 1
+    }
+]
+```
+
+### 2. 新增扫描任务
+
+- 请求方式：`POST`
+- 接口地址：`/scans`
+- 请求类型：`application/json`
+
+> 请求示例：
+
+```
+{
+    "name":"test2",         //本次扫描名称
+    "templates":[""],           //参与扫描的模板name，[""]表示使用所有
+    "targets":["127.0.0.1"],   //目标地址集
+    "runNow":true,          //保持true，提交立即执行
+    "config":"default"        //要采用的settings的Name
+}
+```
+
+> 返回示例：返回本次扫描任务的id，用于查看进度和结果等相关信息
+
+```
+{
+    "id": 11
+}
+```
+
+### 3. 根据ID获取scans
+
+- 请求方式：`GET`
+- 接口地址：`/scans/:id`
+
+> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/11`
+
+```
+{
+    "id": 11,
+    "status": "done",      //done表示已结束，started表示正在执行中，failed表示失败
+    "name": "test2",
+    "templates": [
+        ""
+    ],
+    "targets": [
+        "127.0.0.1"
+    ],
+    "config": "default",
+    "runNow": true,
+    "hosts": 1
+}
+```
+
+### 4. 根据ID获取scans的命中结果
+
+- 请求方式：`GET`
+- 接口地址：`/scans/:id/matches`
+
+|  参数名   |   类型   | 说明             | 示例       |
+|:------:|:------:|:---------------|:---------|
+|  page  |  int   | 页码，默认0，表示第一页   | 12       |
+|  size  |  int   | 每页显示数量，默认每页10条 | 20       |
+
+> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/9/matches?page=0&size=2`
+
+```
+[
+    {
+        "templateName": "http-missing-security-headers.yaml",
+        "severity": "info",
+        "author": "socketz, geeknik, g4l1t0, convisoappsec, kurohost, dawid-czarnecki",
+        "matchedAt": "http://127.0.0.1:8822"
+    },
+    {
+        "templateName": "http-missing-security-headers.yaml",
+        "severity": "info",
+        "author": "socketz, geeknik, g4l1t0, convisoappsec, kurohost, dawid-czarnecki",
+        "matchedAt": "http://127.0.0.1:8822"
+    }
+]
+```
+
+### 5. 根据ID获取scans的错误
+
+- 请求方式：`GET`
+- 接口地址：`/scans/:id/errors`
+
+> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/9/errors?page=0&size=2`
+
+```
+[
+    {
+        "template": "/tmp/nuclei-templates-3070765142/misconfiguration/proxy/metadata-aws.yaml",
+        "url": "http://127.0.0.1:8822",
+        "type": "http",
+        "error": "ReadStatusLine: read tcp 127.0.0.1:54786->127.0.0.1:8822: i/o timeout"
+    },
+    {
+        "template": "/tmp/nuclei-templates-3070765142/misconfiguration/proxy/metadata-aws.yaml",
+        "url": "http://127.0.0.1:8822",
+        "type": "http",
+        "error": "ReadStatusLine: read tcp 127.0.0.1:55020->127.0.0.1:8822: i/o timeout"
+    }
+]
+```
+
+### 6. 根据ID获取正在执行的模板
+
+- 请求方式：`GET`
+- 接口地址：`/scans/:id/progress`
+
+> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/9/progress`
+
+```
+{
+  "rdp-detect": "running",
+  "confluence-detect": "running",
+  "CVE-2021-21389": "running",
+  "CVE-2002-1131": "running",
+  "aem-merge-metadata-servlet": "running",
+  "CVE-2010-4719": "running",
+  "CVE-2014-4940": "running"
+}
+```
