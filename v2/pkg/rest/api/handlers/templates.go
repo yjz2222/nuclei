@@ -195,8 +195,8 @@ func (s *Server) GetTemplatesRaw(ctx echo.Context) error {
 
 // ExecuteTemplateRequest is a request for /templates execution
 type ExecuteTemplateRequest struct {
-	Path   string `json:"path"`
-	Target string `json:"target"`
+	Content string `json:"content"`
+	Target  string `json:"target"`
 }
 
 // ExecuteTemplateResponse is a response for /templates execution
@@ -211,11 +211,7 @@ func (s *Server) ExecuteTemplate(ctx echo.Context) error {
 	if err := jsoniter.NewDecoder(ctx.Request().Body).Decode(&body); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not unmarshal body").Error())
 	}
-	templateContents, err := s.db.GetTemplateContents(context.Background(), body.Path)
-	if err != nil {
-		return echo.NewHTTPError(500, errors.Wrap(err, "could not get template").Error())
-	}
-	template, err := templates.Parse(strings.NewReader(templateContents), "", nil, *testutils.NewMockExecuterOptions(testutils.DefaultOptions, &testutils.TemplateInfo{}))
+	template, err := templates.Parse(strings.NewReader(body.Content), "", nil, *testutils.NewMockExecuterOptions(testutils.DefaultOptions, &testutils.TemplateInfo{}))
 	if err != nil {
 		return echo.NewHTTPError(500, errors.Wrap(err, "could not parse template").Error())
 	}
