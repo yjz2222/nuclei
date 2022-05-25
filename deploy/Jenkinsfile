@@ -14,7 +14,7 @@ pipeline {
             steps {
                 cleanWs()
                 git branch: "${env.BRANCH}", credentialsId: "${env.GITLAB_CRED_ID}",
-                url: 'http://git.vackbot.com/mypoc/poc-server.git'
+                url: 'https://git.vackbot.com/mypoc/poc-server.git'
                 sh "mv deploy/Dockerfile ."
                 sh "${env.DOCKER_ENDPOINT} build . -t ${env.IMAGE_HOST}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
                 sh "${env.DOCKER_ENDPOINT} tag ${env.IMAGE_HOST}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}" +
