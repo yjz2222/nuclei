@@ -6,6 +6,7 @@ package dbsql
 import (
 	"context"
 	"database/sql"
+	"log"
 	"time"
 )
 
@@ -224,12 +225,17 @@ func (q *Queries) DeleteTarget(ctx context.Context, id int64) error {
 }
 
 const deleteTemplate = `-- name: DeleteTemplate :exec
-DELETE FROM public.templates WHERE id = $1
+DELETE FROM public.templates WHERE ID=$1
 `
 
 func (q *Queries) DeleteTemplate(ctx context.Context, ids []int) error {
+	log.Println("delete ids: ", ids)
 	for i := range ids {
-		_, _ = q.db.Exec(ctx, deleteTemplate, ids[i])
+		_, err := q.db.Exec(ctx, deleteTemplate, ids[i])
+		log.Println("delete id: ", ids[i])
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
