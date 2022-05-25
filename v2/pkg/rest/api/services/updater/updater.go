@@ -288,16 +288,16 @@ func compareAndWriteTemplates(zipReader *zip.Reader, db *db.Database) (*template
 
 	// If we don't find the previous file in the newly downloaded list,
 	// and it hasn't been changed on the disk, delete it.
-	for templatePath, templateChecksums := range templateChecksumsMap {
-		_, ok := templateChecksumsMap[templatePath]
-		if !ok && templateChecksums[0] == templateChecksums[1] {
-			if err = db.Queries().DeleteTemplate(context.Background(), templatePath); err != nil {
-				return nil, err
-			}
-			gologger.Info().Msgf("Deleted template: %s\n", templatePath)
-			results.deletions = append(results.deletions, templatePath)
-		}
-	}
+	//for templatePath, templateChecksums := range templateChecksumsMap {
+	//	_, ok := templateChecksumsMap[templatePath]
+	//	if !ok && templateChecksums[0] == templateChecksums[1] {
+	//		if err = db.Queries().DeleteTemplate(context.Background(), templatePath); err != nil {
+	//			return nil, err
+	//		}
+	//		gologger.Info().Msgf("Deleted template: %s\n", templatePath)
+	//		results.deletions = append(results.deletions, templatePath)
+	//	}
+	//}
 	return results, err
 }
 
