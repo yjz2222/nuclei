@@ -33,7 +33,7 @@ func LoadTemplate(templatePath string, tagFilter *filter.TagFilter, extraTags []
 		return false, nil
 	}
 
-	if validationError := validateTemplateFields(template); validationError != nil {
+	if validationError := ValidateTemplateFields(template); validationError != nil {
 		stats.Increment(SyntaxErrorStats)
 		return false, validationError
 	}
@@ -51,7 +51,7 @@ func LoadWorkflow(templatePath string) (bool, error) {
 	}
 
 	if len(template.Workflows) > 0 {
-		if validationError := validateTemplateFields(template); validationError != nil {
+		if validationError := ValidateTemplateFields(template); validationError != nil {
 			return false, validationError
 		}
 		return true, nil
@@ -74,7 +74,7 @@ func isTemplateInfoMetadataMatch(tagFilter *filter.TagFilter, templateInfo *mode
 	return match, err
 }
 
-func validateTemplateFields(template *templates.Template) error {
+func ValidateTemplateFields(template *templates.Template) error {
 	info := template.Info
 
 	var errors []string

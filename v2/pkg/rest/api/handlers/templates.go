@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"github.com/projectdiscovery/nuclei/v2/pkg/parsers"
 	"path/filepath"
 	"strings"
 	"time"
@@ -147,9 +148,12 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 	if err := jsoniter.NewDecoder(ctx.Request().Body).Decode(&body); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not unmarshal body").Error())
 	}
-	if _, err := templates.Parse(strings.NewReader(body.Contents), "", nil, *testutils.NewMockExecuterOptions(testutils.DefaultOptions, &testutils.TemplateInfo{})); err != nil {
+	if tpl, err := templates.Parse(strings.NewReader(body.Contents), "", nil, *testutils.NewMockExecuterOptions(testutils.DefaultOptions, &testutils.TemplateInfo{})); err != nil {
+		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
+	} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
 	}
+
 	id, err := s.db.AddTemplate(context.Background(), dbsql.AddTemplateParams{
 		Contents: body.Contents,
 		Folder:   body.Folder,
