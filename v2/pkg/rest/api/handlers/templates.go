@@ -168,7 +168,7 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 
 // DeleteTemplateRequest is a request for /templates deletion
 type DeleteTemplateRequest struct {
-	Path string `json:"path"`
+	Ids []int `json:"ids"`
 }
 
 // DeleteTemplate handles /templates deletion route
@@ -177,7 +177,7 @@ func (s *Server) DeleteTemplate(ctx echo.Context) error {
 	if err := jsoniter.NewDecoder(ctx.Request().Body).Decode(&body); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not unmarshal body").Error())
 	}
-	err := s.db.DeleteTemplate(context.Background(), body.Path)
+	err := s.db.DeleteTemplate(context.Background(), body.Ids)
 	if err != nil {
 		return echo.NewHTTPError(500, errors.Wrap(err, "could not delete template to db").Error())
 	}

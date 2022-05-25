@@ -16,7 +16,7 @@ type Querier interface {
 	DeleteIssueByScanID(ctx context.Context, scanid int64) error
 	DeleteScan(ctx context.Context, id int64) error
 	DeleteTarget(ctx context.Context, id int64) error
-	DeleteTemplate(ctx context.Context, path string) error
+	DeleteTemplate(ctx context.Context, ids []int) error
 	GetIssue(ctx context.Context, id int64) (Issue, error)
 	GetIssues(ctx context.Context, arg GetIssuesParams) ([]GetIssuesRow, error)
 	GetIssuesByScanID(ctx context.Context, arg GetIssuesByScanIDParams) ([]GetIssuesByScanIDRow, error)

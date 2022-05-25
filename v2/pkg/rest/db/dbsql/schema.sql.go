@@ -224,11 +224,11 @@ func (q *Queries) DeleteTarget(ctx context.Context, id int64) error {
 }
 
 const deleteTemplate = `-- name: DeleteTemplate :exec
-DELETE FROM public.templates WHERE path=$1
+DELETE FROM public.templates WHERE id in ($1)
 `
 
-func (q *Queries) DeleteTemplate(ctx context.Context, path string) error {
-	_, err := q.db.Exec(ctx, deleteTemplate, path)
+func (q *Queries) DeleteTemplate(ctx context.Context, ids []int) error {
+	_, err := q.db.Exec(ctx, deleteTemplate, ids)
 	return err
 }
 
