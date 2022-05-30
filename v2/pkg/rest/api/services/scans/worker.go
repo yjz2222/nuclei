@@ -214,7 +214,7 @@ func (s *ScanService) createExecuterFromOpts(scanCtx *scanContext) error {
 func (s *ScanService) worker(req ScanRequest) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-
+	core.TemplateTimestamp = new(sync.Map)
 	// Mark the scan state as finished in db.
 	upateErr := s.db.UpdateScanState(context.Background(), dbsql.UpdateScanStateParams{
 		ID:     req.ScanID,

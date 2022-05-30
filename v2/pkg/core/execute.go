@@ -9,7 +9,6 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 	"github.com/spf13/cast"
 	"go.uber.org/atomic"
-	"sync"
 )
 
 // Execute takes a list of templates/workflows that have been compiled
@@ -24,7 +23,7 @@ func (e *Engine) Execute(ctx context.Context, templates []*templates.Template, t
 // ExecuteWithOpts executes with the full options
 func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates.Template, target InputProvider, noCluster bool) *atomic.Bool {
 	//RunningStatus = make([]map[string]interface{}, 0, len(templatesList))
-	TemplateTimestamp = new(sync.Map)
+
 	var finalTemplates []*templates.Template
 	if !noCluster {
 		finalTemplates, _ = templates.ClusterTemplates(templatesList, e.executerOpts)

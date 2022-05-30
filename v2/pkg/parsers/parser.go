@@ -25,6 +25,7 @@ const (
 
 // LoadTemplate returns true if the template is valid and matches the filtering criteria.
 func LoadTemplate(templatePath string, tagFilter *filter.TagFilter, extraTags []string) (bool, error) {
+
 	template, templateParseError := ParseTemplate(templatePath)
 	if templateParseError != nil {
 		return false, templateParseError
