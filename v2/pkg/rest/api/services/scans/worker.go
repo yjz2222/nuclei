@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"log"
 	"os"
 	"strings"
 	"sync"
@@ -234,13 +233,14 @@ func (s *ScanService) worker(req ScanRequest) error {
 	gologger.Info().Msgf("[scans] [worker] [%d] loaded settings for config %s", req.ScanID, req.Config)
 
 	templatesDirectory, templatesList, workflowsList, err := s.storeTemplatesFromRequest(req.Templates)
+
 	if err != nil {
 		return errors.Wrap(err, "could not get templates")
 	}
 	defer os.RemoveAll(templatesDirectory)
 
 	gologger.Info().Msgf("[scans] [worker] [%d] loaded templates and workflows from req %v", req.ScanID, req.Templates)
-
+	core.RunningStatus = make([]map[string]interface{}, 0, len(req.Templates))
 	typesOptions.TemplatesDirectory = templatesDirectory
 	typesOptions.Templates = templatesList
 	typesOptions.Workflows = workflowsList
@@ -262,6 +262,9 @@ func (s *ScanService) worker(req ScanRequest) error {
 
 	gologger.Info().Msgf("[scans] [worker] [%d] total loaded templates count: %d", req.ScanID, len(finalTemplates))
 
+	//for i := range finalTemplates {
+	//	core.NewTemplateStatus(finalTemplates[i].ID, 1)
+	//}
 	inputProvider, err := s.inputProviderFromRequest(req.Targets)
 	if err != nil {
 		return errors.Wrap(err, "could not create input provider")
@@ -269,13 +272,8 @@ func (s *ScanService) worker(req ScanRequest) error {
 	gologger.Info().Msgf("[scans] [worker] [%d] total loaded input count: %d", req.ScanID, inputProvider.Count())
 
 	scanCtx.executerOpts.Progress.Init(inputProvider.Count(), len(finalTemplates), int64(len(finalTemplates)*int(inputProvider.Count())))
-	tsRunning, ok := s.Running.Load(req.ScanID)
-	if !ok {
-		log.Fatal("未找到 s.Running.Load(req.ScanID)：", req.ScanID)
-	}
-	tsRV := tsRunning.(*RunningScan)
-	withTmpStatusCtx := context.WithValue(ctx, "ts", tsRV.tmpStatus)
-	_ = scanCtx.executer.Execute(withTmpStatusCtx, finalTemplates, inputProvider)
+
+	_ = scanCtx.executer.Execute(ctx, finalTemplates, inputProvider)
 
 	gologger.Info().Msgf("[scans] [worker] [%d] finished scan for ID", req.ScanID)
 

@@ -238,7 +238,6 @@ func isParsingError(message string, template string, err error) bool {
 func (store *Store) LoadTemplates(templatesList []string) []*templates.Template {
 	includedTemplates := store.config.Catalog.GetTemplatesPath(templatesList)
 	templatePathMap := store.pathFilter.Match(includedTemplates)
-
 	loadedTemplates := make([]*templates.Template, 0, len(templatePathMap))
 	for templatePath := range templatePathMap {
 		loaded, err := parsers.LoadTemplate(templatePath, store.tagFilter, nil)

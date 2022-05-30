@@ -2,6 +2,7 @@ package parsers
 
 import (
 	"fmt"
+	"github.com/projectdiscovery/nuclei/v2/pkg/core"
 	"regexp"
 	"strings"
 
@@ -28,8 +29,9 @@ func LoadTemplate(templatePath string, tagFilter *filter.TagFilter, extraTags []
 	if templateParseError != nil {
 		return false, templateParseError
 	}
-
+	core.SetTemplateStatus(template.ID, 1)
 	if len(template.Workflows) > 0 {
+		core.SetTemplateStatus(template.ID, 4)
 		return false, nil
 	}
 

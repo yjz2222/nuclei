@@ -23,7 +23,7 @@ func (e *Engine) Execute(ctx context.Context, templates []*templates.Template, t
 
 // ExecuteWithOpts executes with the full options
 func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates.Template, target InputProvider, noCluster bool) *atomic.Bool {
-	RunningStatus = make([]map[string]interface{}, 0, len(templatesList))
+	//RunningStatus = make([]map[string]interface{}, 0, len(templatesList))
 	TemplateTimestamp = new(sync.Map)
 	var finalTemplates []*templates.Template
 	if !noCluster {
@@ -34,6 +34,8 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 
 	results := &atomic.Bool{}
 	for _, template := range finalTemplates {
+		//NewTemplateStatus(template.ID, 1)
+		TemplateTimestamp.Store(template.ID, make([]stamp, 0, 8))
 		if ctx.Err() != nil {
 			break
 		}
@@ -49,8 +51,8 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 		wg.Add()
 		go func(tpl *templates.Template) {
 			//初始化
-			NewTemplateStatus(tpl.ID, 1)
-			TemplateTimestamp.Store(tpl.ID, make([]stamp, 0, 8))
+			//NewTemplateStatus(tpl.ID, 1)
+			//TemplateTimestamp.Store(tpl.ID, make([]stamp, 0, 8))
 			AddTemplateTimestamp(tpl.ID, "开始时间", "#409EFF", "", 0)
 			switch {
 			case tpl.SelfContained:

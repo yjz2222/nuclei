@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/spf13/cast"
-	"log"
 	"sync"
 	"time"
 )
@@ -12,13 +11,6 @@ import (
 */
 var RunningStatus []map[string]interface{}
 
-func NewTemplateStatus(tplID string, status int) {
-	log.Println("new ts for: ", tplID)
-	m := make(map[string]interface{})
-	m["templateId"] = tplID
-	m["status"] = status
-	RunningStatus = append(RunningStatus, m)
-}
 func SetTemplateStatus(tplID string, status int) {
 	for i := range RunningStatus {
 		if cast.ToString(RunningStatus[i]["templateId"]) == tplID {
@@ -26,6 +18,10 @@ func SetTemplateStatus(tplID string, status int) {
 			return
 		}
 	}
+	m := make(map[string]interface{})
+	m["templateId"] = tplID
+	m["status"] = status
+	RunningStatus = append(RunningStatus, m)
 }
 
 //var TemplateTimestamp map[string][]stamp
@@ -51,7 +47,6 @@ func AddTemplateTimestamp(tplId, ct, color, msg string, status int) {
 	TemplateTimestamp.Range(func(key, value interface{}) bool {
 		if cast.ToString(key) == tplId {
 			v = value.([]stamp)
-			log.Println("get stamp slice:", cast.ToString(key))
 			return false
 		}
 		return true
