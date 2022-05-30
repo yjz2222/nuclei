@@ -24,10 +24,10 @@ func SetTemplateStatus(tplID string, status int) {
 	RunningStatus = append(RunningStatus, m)
 }
 
-//var TemplateTimestamp map[string][]stamp
+//var TemplateTimestamp map[string][]Stamp
 var TemplateTimestamp *sync.Map
 
-type stamp struct {
+type Stamp struct {
 	Content   string
 	Timestamp string
 	Color     string
@@ -36,17 +36,17 @@ type stamp struct {
 }
 
 func AddTemplateTimestamp(tplId, ct, color, msg string, status int) {
-	s := stamp{
+	s := Stamp{
 		Content:   ct,
 		Color:     color,
 		Status:    status,
 		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
 		Msg:       msg,
 	}
-	v := []stamp{}
+	v := []Stamp{}
 	TemplateTimestamp.Range(func(key, value interface{}) bool {
 		if cast.ToString(key) == tplId {
-			v = value.([]stamp)
+			v = value.([]Stamp)
 			return false
 		}
 		return true

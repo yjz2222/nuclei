@@ -35,7 +35,7 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 	results := &atomic.Bool{}
 	for _, template := range finalTemplates {
 		//NewTemplateStatus(template.ID, 1)
-		TemplateTimestamp.Store(template.ID, make([]stamp, 0, 8))
+
 		if ctx.Err() != nil {
 			break
 		}
@@ -52,7 +52,7 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 		go func(tpl *templates.Template) {
 			//初始化
 			//NewTemplateStatus(tpl.ID, 1)
-			//TemplateTimestamp.Store(tpl.ID, make([]stamp, 0, 8))
+			//TemplateTimestamp.Store(tpl.ID, make([]Stamp, 0, 8))
 			//AddTemplateTimestamp(tpl.ID, "开始时间", "#409EFF", "", 0)
 			switch {
 			case tpl.SelfContained:
