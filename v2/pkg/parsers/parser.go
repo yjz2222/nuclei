@@ -30,8 +30,10 @@ func LoadTemplate(templatePath string, tagFilter *filter.TagFilter, extraTags []
 		return false, templateParseError
 	}
 	core.SetTemplateStatus(template.ID, 1)
+	core.AddTemplateTimestamp(template.ID, "开始时间", "#409EFF", "", 0)
 	if len(template.Workflows) > 0 {
 		core.SetTemplateStatus(template.ID, 4)
+		core.AddTemplateTimestamp(template.ID, "结束时间", "#409EFF", "", 0)
 		return false, nil
 	}
 
