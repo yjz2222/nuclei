@@ -49,7 +49,7 @@ func (e *Engine) ExecuteWithOpts(ctx context.Context, templatesList []*templates
 		wg.Add()
 		go func(tpl *templates.Template) {
 			//初始化
-
+			NewTemplateStatus(tpl.ID, 1)
 			TemplateTimestamp.Store(tpl.ID, make([]stamp, 0, 8))
 			AddTemplateTimestamp(tpl.ID, "开始时间", "#409EFF", "", 0)
 			switch {

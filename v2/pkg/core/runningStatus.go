@@ -13,6 +13,7 @@ import (
 var RunningStatus []map[string]interface{}
 
 func NewTemplateStatus(tplID string, status int) {
+	log.Println("new ts for: ", tplID)
 	m := make(map[string]interface{})
 	m["templateId"] = tplID
 	m["status"] = status

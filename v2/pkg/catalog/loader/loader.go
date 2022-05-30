@@ -2,8 +2,6 @@ package loader
 
 import (
 	"errors"
-	"github.com/projectdiscovery/nuclei/v2/pkg/core"
-
 	"github.com/projectdiscovery/gologger"
 	"github.com/projectdiscovery/nuclei/v2/pkg/catalog"
 	"github.com/projectdiscovery/nuclei/v2/pkg/catalog/loader/filter"
@@ -254,7 +252,7 @@ func (store *Store) LoadTemplates(templatesList []string) []*templates.Template 
 				gologger.Warning().Msgf("Could not parse template %s: %s\n", templatePath, err)
 			} else if parsed != nil {
 				loadedTemplates = append(loadedTemplates, parsed)
-				core.NewTemplateStatus(parsed.ID, 1)
+
 			}
 		}
 	}
@@ -278,7 +276,7 @@ func (store *Store) LoadWorkflows(workflowsList []string) []*templates.Template 
 				gologger.Warning().Msgf("Could not parse workflow %s: %s\n", workflowPath, err)
 			} else if parsed != nil {
 				loadedWorkflows = append(loadedWorkflows, parsed)
-				core.NewTemplateStatus(parsed.ID, 1)
+
 			}
 		}
 	}
