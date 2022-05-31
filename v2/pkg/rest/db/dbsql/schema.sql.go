@@ -839,7 +839,7 @@ func (q *Queries) GetTemplateContents(ctx context.Context, path string) (string,
 const getTemplates = `-- name: GetTemplates :many
 SELECT id, name, folder, "path", createdat, updatedat, hash
 FROM
-	"public".templates
+	"public".templates where templates.path like '%.yaml' 
 ORDER BY id desc 
 LIMIT $2 offset $1
 `
@@ -890,7 +890,7 @@ func (q *Queries) GetTemplates(ctx context.Context, arg GetTemplatesParams) ([]G
 const getTemplatesByFolder = `-- name: GetTemplatesByFolder :many
 SELECT id, name, "path", createdat, updatedat, hash
 FROM
-	"public".templates WHERE folder=$1
+	"public".templates WHERE folder=$1 and templates.path like '%.yaml' 
 `
 
 type GetTemplatesByFolderRow struct {
@@ -961,7 +961,7 @@ func (q *Queries) GetTemplatesByFolderOne(ctx context.Context, folder string) (G
 const getTemplatesBySearchKey = `-- name: GetTemplatesBySearchKey :many
 SELECT id, name, folder, "path", createdat, updatedat, hash
 FROM
-	"public".templates WHERE path LIKE '%'||$1||'%'
+	"public".templates WHERE path LIKE '%'||$1||'%' and templates.path like '%.yaml'  
 ORDER BY id
 LIMIT $3 offset $2
 `

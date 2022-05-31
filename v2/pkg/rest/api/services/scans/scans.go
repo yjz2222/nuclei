@@ -3,6 +3,7 @@ package scans
 import (
 	"context"
 	"database/sql"
+	"github.com/projectdiscovery/nuclei/v2/pkg/rest/db"
 	"github.com/spf13/cast"
 	"log"
 	"strconv"
@@ -29,6 +30,7 @@ type ScanService struct {
 
 	Running   *sync.Map // Map of running scan with their status
 	scanQueue *queue.Queue
+	Dbraw     *db.Database
 }
 
 type RunningScan struct {
@@ -54,7 +56,7 @@ type ScanRequest struct {
 }
 
 // NewScanService returns a new scan service
-func NewScanService(logs string, noPoll bool, concurrency int, db dbsql.Querier, target *targets.TargetsStorage) *ScanService {
+func NewScanService(logs string, noPoll bool, concurrency int, db dbsql.Querier, target *targets.TargetsStorage, dbraw *db.Database) *ScanService {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Do not use cache as the template contents depend upon db
@@ -71,6 +73,7 @@ func NewScanService(logs string, noPoll bool, concurrency int, db dbsql.Querier,
 		target:      target,
 		Running:     &sync.Map{},
 		scanQueue:   queue.New(128),
+		Dbraw:       dbraw,
 	}
 	for i := 0; i < concurrency; i++ {
 		go func() {

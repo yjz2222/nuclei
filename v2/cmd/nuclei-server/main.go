@@ -66,15 +66,15 @@ func process() error {
 		gologger.Info().Msgf("Using templates version: %s\n", version)
 	}
 
-	// First startup requirements
-	if version, err := updater.UpdateTemplates(database, semver.Version{}); err == nil {
-		updater.SetTemplatesVersion(version)
-	} else {
-		gologger.Error().Msgf("Could not update template: %s\n", err)
-	}
-
-	close := updater.RunUpdateChecker(database)
-	defer close()
+	//// First startup requirements
+	//if version, err := updater.UpdateTemplates(database, semver.Version{}); err == nil {
+	//	updater.SetTemplatesVersion(version)
+	//} else {
+	//	gologger.Error().Msgf("Could not update template: %s\n", err)
+	//}
+	//
+	//close := updater.RunUpdateChecker(database)
+	//defer close()
 
 	err = database.Migrate()
 	if err != nil {
@@ -98,7 +98,7 @@ func process() error {
 	}
 
 	targets := targets.NewTargetsStorage(*datadir)
-	scans := scans.NewScanService(*logsdir, false, 1, dbInstance, targets)
+	scans := scans.NewScanService(*logsdir, false, 1, dbInstance, targets, database)
 	defer scans.Close()
 
 	server := handlers.New(dbInstance, targets, scans)

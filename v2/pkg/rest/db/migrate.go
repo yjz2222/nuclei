@@ -103,6 +103,6 @@ CREATE TABLE IF NOT EXISTS "public".issues (
 
 // Migrate runs the db migrations creating tables etc
 func (d *Database) Migrate() error {
-	_, err := d.pool.Exec(context.Background(), migrationData)
+	_, err := d.Pool.Exec(context.Background(), migrationData)
 	return err
 }

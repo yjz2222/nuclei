@@ -11,7 +11,7 @@ import (
 
 // Database is a database access layer for nuclei rest api
 type Database struct {
-	pool *pgxpool.Pool
+	Pool *pgxpool.Pool
 }
 
 // New returns a new database object from configuration
@@ -20,15 +20,15 @@ func New(postgresURL string) (*Database, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Database{pool: pool}, nil
+	return &Database{Pool: pool}, nil
 }
 
 // Queries returns the dbsql queries structure
 func (d *Database) Queries() dbsql.Querier {
-	return dbsql.New(d.pool)
+	return dbsql.New(d.Pool)
 }
 
-// Close closes the database connection pool
+// Close closes the database connection Pool
 func (d *Database) Close() {
-	d.pool.Close()
+	d.Pool.Close()
 }

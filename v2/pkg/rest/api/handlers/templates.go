@@ -60,7 +60,12 @@ func (s *Server) getTemplates(ctx echo.Context) error {
 			Updatedat: row.Updatedat,
 		})
 	}
-	return ctx.JSON(200, response)
+	var totalCount int
+	s.scans.Dbraw.Pool.QueryRow(context.Background(), "select count(id) from \"public\".templates where templates.path like '%.yaml'").Scan(&totalCount)
+	m := make(map[string]interface{})
+	m["total"] = totalCount
+	m["data"] = response
+	return ctx.JSON(200, m)
 }
 
 // getTemplatesWithFolder handles getting templates by a folder
@@ -106,7 +111,12 @@ func (s *Server) getTemplatesWithSearchKey(ctx echo.Context, searchKey string) e
 			Updatedat: row.Updatedat,
 		})
 	}
-	return ctx.JSON(200, response)
+	var totalCount int
+	s.scans.Dbraw.Pool.QueryRow(context.Background(), "select count(id) from \"public\".templates where path LIKE '%'||$1||'%' and  templates.path like '%.yaml'", searchKey).Scan(&totalCount)
+	m := make(map[string]interface{})
+	m["total"] = totalCount
+	m["data"] = response
+	return ctx.JSON(200, m)
 }
 
 // UpdateTemplateRequest is a request for /templates update
