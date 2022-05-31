@@ -89,7 +89,7 @@ func (s *Server) getTemplatesWithSearchKey(ctx echo.Context, searchKey string) e
 
 	rows, err := s.db.GetTemplatesBySearchKey(context.Background(), dbsql.GetTemplatesBySearchKeyParams{
 		Column1:   sql.NullString{String: searchKey, Valid: true},
-		SqlOffset: page,
+		SqlOffset: page * size,
 		SqlLimit:  size,
 	})
 	if err != nil {
