@@ -99,7 +99,18 @@ CREATE TABLE IF NOT EXISTS "public".issues (
 	scanid               bigint NOT NULL,
 	CONSTRAINT pk_issues_id PRIMARY KEY ( id ),
 	CONSTRAINT unq_hash UNIQUE ( hash ) 
-);`
+);
+
+
+CREATE TABLE IF NOT EXISTS "public".users ( 
+    id                   bigserial NOT NULL,
+	user_name          varchar NOT NULL,
+	password             varchar NOT NULL,
+    CONSTRAINT pk_user_name_id PRIMARY KEY ( id ),
+	CONSTRAINT unq_name UNIQUE ( user_name ) 
+ );
+
+`
 
 // Migrate runs the db migrations creating tables etc
 func (d *Database) Migrate() error {

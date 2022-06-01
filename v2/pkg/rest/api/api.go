@@ -53,8 +53,11 @@ func New(config *Config) *API {
 	}))
 	// Use basic auth
 	//e.Use(HeaderAuthenticator(config.Token))
+	e.POST("/login", config.Server.Login)
+	e.POST("/modPwd", config.Server.ModPwd)
 
 	apiGroup := e.Group("/api/v1")
+	apiGroup.Use(middleware.JWT([]byte(handlers.JWT_KEY)))
 
 	// /templates endpoints
 	apiGroup.GET("/templates", config.Server.GetTemplates)

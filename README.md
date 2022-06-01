@@ -1,10 +1,64 @@
 # MyPoc接口文档
 
-测试环境地址前缀为`http://10.10.30.152:8822/api/v1`
+测试环境地址前缀为`http://10.10.30.183:8822`
 
-以下接口地址需接前缀使用，如接口地址`/templates`,则实际请求地址为`http://10.10.30.152:8822/api/v1/templates`
+以下接口地址 ***除了登录相关接口*** 以外，其他接口均需接前缀`/api/v1`使用，如接口地址`/templates`,则实际请求地址为`http://10.10.30.183:8822/api/v1/templates`
 
 > 所有接口均返回json形式
+
+> 除了登录相关接口以外的其他接口，均需在请求头部添加`Authorization`字段，值的表现形式为`Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Z3971_pDFwjtPKRv6g-9buQU03ZuEBTXZ-QSKD3n6wM`;
+> 其中`Bearer`为固定值，***Bearer和token之间有一个空格***，参考[RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750)，`eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Z3971_pDFwjtPKRv6g-9buQU03ZuEBTXZ-QSKD3n6wM`为登录成功后返回的token
+
+---
+
+## 登录相关接口
+
+**此部分接口直接使用URL前缀到端口部分，即`http://10.10.30.183:8822/login`和`http://10.10.30.183:8822/modPwd`**
+
+---
+
+### 1. 用户登录
+
+- 请求方式：`POST`
+- 接口地址：`/login`
+- 请求类型：`application/json`
+
+> 请求示例：
+
+```
+{
+    "user_name": "admin",
+    "password": "123456"
+}
+```
+
+> 返回示例：成功后返回token，否则状态码不等于200
+
+```
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.Z3971_pDFwjtPKRv6g-9buQU03ZuEBTXZ-QSKD3n6wM"
+}
+```
+
+
+### 2. 修改密码
+
+- 请求方式：`POST`
+- 接口地址：`/modPwd`
+- 请求类型：`application/json`
+
+> 请求示例：
+
+```
+{
+    "user_name": "admin",
+    "password": "123456",   //原密码
+    "new_pwd": "654321"      //新密码
+}
+```
+
+> 返回示例：根据状态码是否等于200判断是否修改成功，成功后不返回数据，只响应200状态码
+
 
 ---
 
@@ -27,32 +81,91 @@
 > 返回示例：
 
 ```
-[
-  {
-    "id": 1,
-    "name": "TEMPLATES-STATS.json",
-    "folder": "nuclei-templates",
-    "path": "TEMPLATES-STATS.json",
-    "createdAt": "2022-05-07T10:57:07.991806+08:00",
-    "updatedAt": "2022-05-10T00:00:00Z"
-  },
-  {
-    "id": 2,
-    "name": "CNVD-2018-13393.yaml",
-    "folder": "nuclei-templates",
-    "path": "cnvd/2018/CNVD-2018-13393.yaml",
-    "createdAt": "2022-05-07T10:57:07.997368+08:00",
-    "updatedAt": "2022-05-07T00:00:00Z"
-  },
-  {
-    "id": 3,
-    "name": "CNVD-2019-01348.yaml",
-    "folder": "nuclei-templates",
-    "path": "cnvd/2019/CNVD-2019-01348.yaml",
-    "createdAt": "2022-05-07T10:57:07.998883+08:00",
-    "updatedAt": "2022-05-07T00:00:00Z"
-  }
-]
+{
+    "total": 3606,
+    "data": [
+        {
+            "id": 3634,
+            "name": "dotnetcms-sqli.yaml",
+            "folder": "nuclei-templates",
+            "path": "vulnerabilities/other/dotnetcms-sqli.yaml",
+            "createdAt": "2022-05-31T14:45:46.330285+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3633,
+            "name": "phppgadmin-version.yaml",
+            "folder": "nuclei-templates",
+            "path": "technologies/phppgadmin-version.yaml",
+            "createdAt": "2022-05-31T14:45:46.308767+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3632,
+            "name": "unifi-panel.yaml",
+            "folder": "nuclei-templates",
+            "path": "exposed-panels/unifi-panel.yaml",
+            "createdAt": "2022-05-31T14:45:46.223613+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3631,
+            "name": "seafile-panel.yaml",
+            "folder": "nuclei-templates",
+            "path": "exposed-panels/seafile-panel.yaml",
+            "createdAt": "2022-05-31T14:45:46.220945+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3630,
+            "name": "CVE-2022-24900.yaml",
+            "folder": "nuclei-templates",
+            "path": "cves/2022/CVE-2022-24900.yaml",
+            "createdAt": "2022-05-31T14:45:46.201543+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3629,
+            "name": "CVE-2022-22972.yaml",
+            "folder": "nuclei-templates",
+            "path": "cves/2022/CVE-2022-22972.yaml",
+            "createdAt": "2022-05-31T14:45:46.199588+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3628,
+            "name": "CVE-2022-0776.yaml",
+            "folder": "nuclei-templates",
+            "path": "cves/2022/CVE-2022-0776.yaml",
+            "createdAt": "2022-05-31T14:45:46.196224+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3627,
+            "name": "CVE-2019-12583.yaml",
+            "folder": "nuclei-templates",
+            "path": "cves/2019/CVE-2019-12583.yaml",
+            "createdAt": "2022-05-31T14:45:46.142653+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3626,
+            "name": "CVE-2019-12581.yaml",
+            "folder": "nuclei-templates",
+            "path": "cves/2019/CVE-2019-12581.yaml",
+            "createdAt": "2022-05-31T14:45:46.140388+08:00",
+            "updatedAt": "2022-05-31T00:00:00Z"
+        },
+        {
+            "id": 3625,
+            "name": "ait-csv-import-export-rce.yaml",
+            "folder": "nuclei-templates",
+            "path": "vulnerabilities/wordpress/ait-csv-import-export-rce.yaml",
+            "createdAt": "2022-05-29T18:24:21.526848+08:00",
+            "updatedAt": "2022-05-29T00:00:00Z"
+        }
+    ]
+}
 ```
 
 ### 2. 新增模板
@@ -255,7 +368,7 @@ requests:
 - 请求类型：`form`
 
 > 请求示例：需要修改的目标集的id直接替换接口地址里的`:id`，如需修改id为1的目标集合，
-> 则请求地址为`http://10.10.30.152:8822/api/v1/targets/1`
+> 则请求地址为`http://10.10.30.183:8822/api/v1/targets/1`
 
 |   参数名    |   类型   | 说明            | 示例          |
 |:--------:|:------:|:--------------|:------------|
@@ -334,7 +447,7 @@ https://www.bilibili.com
 - 接口地址：`/settings/:name`
 
 > 请求示例：替换`:name`为需要获取的settings的name，
-> 如请求地址为`http://10.10.30.152:8822/api/v1/settings/mySettings`
+> 如请求地址为`http://10.10.30.183:8822/api/v1/settings/mySettings`
 
 > 返回示例：
 
@@ -352,7 +465,7 @@ https://www.bilibili.com
 - 接口地址：`/settings/:name`
 - 请求类型：`application/json`
 
-> 请求示例：请求地址`http://10.10.30.152:8822/api/v1/settings/mySettings`，
+> 请求示例：请求地址`http://10.10.30.183:8822/api/v1/settings/mySettings`，
 > body如下：
 
 ```
@@ -444,7 +557,7 @@ https://www.bilibili.com
 - 请求方式：`GET`
 - 接口地址：`/scans/:id`
 
-> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/11`
+> 返回示例：请求`http://10.10.30.183:8822/api/v1/scans/11`
 
 ```
 {
@@ -473,7 +586,7 @@ https://www.bilibili.com
 |  page  |  int   | 页码，默认0，表示第一页   | 12       |
 |  size  |  int   | 每页显示数量，默认每页10条 | 20       |
 
-> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/9/matches?page=0&size=2`
+> 返回示例：请求`http://10.10.30.183:8822/api/v1/scans/9/matches?page=0&size=2`
 
 ```
 [
@@ -497,7 +610,7 @@ https://www.bilibili.com
 - 请求方式：`GET`
 - 接口地址：`/scans/:id/errors`
 
-> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/9/errors?page=0&size=2`
+> 返回示例：请求`http://10.10.30.183:8822/api/v1/scans/9/errors?page=0&size=2`
 
 ```
 [
@@ -521,7 +634,7 @@ https://www.bilibili.com
 - 请求方式：`GET`
 - 接口地址：`/scans/:id/progress`
 
-> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/9/progress`
+> 返回示例：请求`http://10.10.30.183:8822/api/v1/scans/9/progress`
 
 ```
 [
@@ -545,7 +658,7 @@ https://www.bilibili.com
 - 请求方式：`GET`
 - 接口地址：`/scans/:tid/stamp`
 
-> 返回示例：请求`http://10.10.30.152:8822/api/v1/scans/tpId1/stamp`
+> 返回示例：请求`http://10.10.30.183:8822/api/v1/scans/tpId1/stamp`
 
 ```
 [
