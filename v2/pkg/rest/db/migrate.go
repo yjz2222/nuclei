@@ -110,6 +110,9 @@ CREATE TABLE IF NOT EXISTS "public".users (
 	CONSTRAINT unq_name UNIQUE ( user_name ) 
  );
 
+INSERT INTO public.users (user_name, password) select 'admin', '123456' from public.users where not exists 
+(select * from public.users where user_name='admin');
+
 `
 
 // Migrate runs the db migrations creating tables etc
