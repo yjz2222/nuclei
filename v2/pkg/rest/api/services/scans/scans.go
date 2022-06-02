@@ -3,12 +3,13 @@ package scans
 import (
 	"context"
 	"database/sql"
-	"github.com/projectdiscovery/nuclei/v2/pkg/rest/db"
-	"github.com/spf13/cast"
 	"log"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/projectdiscovery/nuclei/v2/pkg/rest/db"
+	"github.com/spf13/cast"
 
 	"github.com/go-co-op/gocron"
 	"github.com/golang-collections/go-datastructures/queue"
@@ -46,13 +47,15 @@ func (r *RunningScan) Stop() {
 }
 
 type ScanRequest struct {
-	ScanID     int64
-	ScanSource string
-	Templates  []int
-	Targets    []string
-	Config     string
-	RunNow     bool
-	Reporting  string
+	ScanID          int64
+	ScanSource      string
+	Templates       []int
+	Targets         []string
+	Config          string
+	RunNow          bool
+	Reporting       string
+	TemplateThreads int
+	Timeout         int
 }
 
 // NewScanService returns a new scan service
