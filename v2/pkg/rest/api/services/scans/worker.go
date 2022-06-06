@@ -294,6 +294,7 @@ func (s *ScanService) worker(req ScanRequest) error {
 		ID:     scanCtx.scanID,
 		Status: "done",
 	})
+	core.CleanRunningStatus()
 	if upateErr != nil {
 		return errors.Wrap(upateErr, "could not update finished scan state")
 	}

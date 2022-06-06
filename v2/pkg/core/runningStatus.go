@@ -24,6 +24,15 @@ func SetTemplateStatus(tplID string, status int) {
 	RunningStatus = append(RunningStatus, m)
 }
 
+func CleanRunningStatus() {
+	for i := range RunningStatus {
+		if cast.ToInt(RunningStatus[i]["status"]) != 4 {
+			RunningStatus[i]["status"] = 4
+			AddTemplateTimestamp(cast.ToString(RunningStatus[i]["templateId"]), "结束时间", "#409EFF", "", 0)
+		}
+	}
+}
+
 //var TemplateTimestamp map[string][]Stamp
 var TemplateTimestamp *sync.Map
 
