@@ -58,52 +58,50 @@ func New(config *Config) *API {
 
 	apiGroup.POST("/login", config.Server.Login)
 	apiGroup.POST("/modPwd", config.Server.ModPwd)
-	authorizedGroup := e.Group("/authorized")
-	authorizedGroup.Use(middleware.JWT([]byte(handlers.JWT_KEY)))
 
-	// /templates endpoints
-	authorizedGroup.GET("/templates", config.Server.GetTemplates)
-	authorizedGroup.POST("/templates", config.Server.AddTemplate)
-	authorizedGroup.PUT("/templates", config.Server.UpdateTemplate)
-	authorizedGroup.DELETE("/templates", config.Server.DeleteTemplate)
-	authorizedGroup.GET("/templates/raw", config.Server.GetTemplatesRaw)
-	authorizedGroup.POST("/templates/execute", config.Server.ExecuteTemplate)
-	authorizedGroup.POST("/templates/file", config.Server.FileUpload)
+	// /templates endpoints   middleware.JWT([]byte(handlers.JWT_KEY))
+	apiGroup.GET("/templates", config.Server.GetTemplates, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.POST("/templates", config.Server.AddTemplate, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.PUT("/templates", config.Server.UpdateTemplate, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.DELETE("/templates", config.Server.DeleteTemplate, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/templates/raw", config.Server.GetTemplatesRaw, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.POST("/templates/execute", config.Server.ExecuteTemplate, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.POST("/templates/file", config.Server.FileUpload, middleware.JWT([]byte(handlers.JWT_KEY)))
 
 	// /targets endpoints
-	authorizedGroup.GET("/targets", config.Server.GetTargets)
-	authorizedGroup.POST("/targets", config.Server.AddTarget)
-	authorizedGroup.PUT("/targets/:id", config.Server.UpdateTarget)
-	authorizedGroup.DELETE("/targets/:id", config.Server.DeleteTarget)
-	authorizedGroup.GET("/targets/:id", config.Server.GetTargetContents)
+	apiGroup.GET("/targets", config.Server.GetTargets, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.POST("/targets", config.Server.AddTarget, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.PUT("/targets/:id", config.Server.UpdateTarget, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.DELETE("/targets/:id", config.Server.DeleteTarget, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/targets/:id", config.Server.GetTargetContents, middleware.JWT([]byte(handlers.JWT_KEY)))
 
 	// /settings endpoints
-	authorizedGroup.GET("/settings", config.Server.GetSettings)
-	authorizedGroup.POST("/settings", config.Server.SetSetting)
-	authorizedGroup.GET("/settings/:name", config.Server.GetSettingByName)
-	authorizedGroup.PUT("/settings/:name", config.Server.UpdateSettingByName)
+	apiGroup.GET("/settings", config.Server.GetSettings, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.POST("/settings", config.Server.SetSetting, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/settings/:name", config.Server.GetSettingByName, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.PUT("/settings/:name", config.Server.UpdateSettingByName, middleware.JWT([]byte(handlers.JWT_KEY)))
 
 	// /scans endpoints
-	authorizedGroup.GET("/scans", config.Server.GetScans)
-	authorizedGroup.POST("/scans", config.Server.AddScan)
-	authorizedGroup.GET("/scans/progress", config.Server.GetScanProgress)
-	authorizedGroup.GET("/scans/:id", config.Server.GetScan)
-	authorizedGroup.PUT("/scans/:id", config.Server.UpdateScan)
-	authorizedGroup.DELETE("/scans/:id", config.Server.DeleteScan)
-	authorizedGroup.GET("/scans/:id/execute", config.Server.ExecuteScan)
-	authorizedGroup.GET("/scans/:id/matches", config.Server.GetScanMatches)
-	authorizedGroup.GET("/scans/:id/errors", config.Server.GetScanErrors)
+	apiGroup.GET("/scans", config.Server.GetScans, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.POST("/scans", config.Server.AddScan, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/scans/progress", config.Server.GetScanProgress, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/scans/:id", config.Server.GetScan, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.PUT("/scans/:id", config.Server.UpdateScan, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.DELETE("/scans/:id", config.Server.DeleteScan, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/scans/:id/execute", config.Server.ExecuteScan, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/scans/:id/matches", config.Server.GetScanMatches, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/scans/:id/errors", config.Server.GetScanErrors, middleware.JWT([]byte(handlers.JWT_KEY)))
 	//获取模板执行进度
-	authorizedGroup.GET("/scans/:id/progress", config.Server.GetScanTmpStatus)
+	apiGroup.GET("/scans/:id/progress", config.Server.GetScanTmpStatus, middleware.JWT([]byte(handlers.JWT_KEY)))
 	//获取当前或上一次执行的某个模板的时间轴
-	authorizedGroup.GET("/scans/:tid/stamp", config.Server.GetScanTmpStamp)
+	apiGroup.GET("/scans/:tid/stamp", config.Server.GetScanTmpStamp, middleware.JWT([]byte(handlers.JWT_KEY)))
 
 	// /issues endpoints
-	authorizedGroup.GET("/issues", config.Server.GetIssues)
-	authorizedGroup.POST("/issues", config.Server.AddIssue)
-	authorizedGroup.GET("/issues/:id", config.Server.GetIssue)
-	authorizedGroup.PUT("/issues/:id", config.Server.UpdateIssue)
-	authorizedGroup.DELETE("/issues/:id", config.Server.DeleteIssue)
+	apiGroup.GET("/issues", config.Server.GetIssues, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.POST("/issues", config.Server.AddIssue, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.GET("/issues/:id", config.Server.GetIssue, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.PUT("/issues/:id", config.Server.UpdateIssue, middleware.JWT([]byte(handlers.JWT_KEY)))
+	apiGroup.DELETE("/issues/:id", config.Server.DeleteIssue, middleware.JWT([]byte(handlers.JWT_KEY)))
 
 	return &API{echo: e}
 }
