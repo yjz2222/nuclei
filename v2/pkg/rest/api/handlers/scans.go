@@ -3,12 +3,13 @@ package handlers
 import (
 	"context"
 	"database/sql"
-	"github.com/projectdiscovery/nuclei/v2/pkg/core"
-	"github.com/spf13/cast"
 	"io"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/projectdiscovery/nuclei/v2/pkg/core"
+	"github.com/spf13/cast"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
@@ -28,6 +29,8 @@ type AddScanRequest struct {
 	ScheduleOccurence string   `json:"scheduleOccurence"`
 	ScheduleTime      string   `json:"scheduleTime"`
 	ScanSource        string   `json:"scanSource"`
+	TemplateThreads   int      `json:"templateThreads"`
+	Timeout           int      `json:"timeout"`
 }
 
 // AddScan handlers /scans addition route
@@ -64,13 +67,15 @@ func (s *Server) AddScan(ctx echo.Context) error {
 	}
 	if req.RunNow {
 		s.scans.Queue(scans.ScanRequest{
-			ScanID:     id,
-			ScanSource: req.ScanSource,
-			Templates:  req.Templates,
-			Targets:    req.Targets,
-			Config:     req.Config,
-			RunNow:     req.RunNow,
-			Reporting:  req.Reporting,
+			ScanID:          id,
+			ScanSource:      req.ScanSource,
+			Templates:       req.Templates,
+			Targets:         req.Targets,
+			Config:          req.Config,
+			RunNow:          req.RunNow,
+			Reporting:       req.Reporting,
+			TemplateThreads: req.TemplateThreads,
+			Timeout:         req.Timeout,
 		})
 	}
 	return ctx.JSON(200, map[string]int64{"id": id})

@@ -273,6 +273,14 @@ func (s *ScanService) worker(req ScanRequest) error {
 
 	scanCtx.executerOpts.Progress.Init(inputProvider.Count(), len(finalTemplates), int64(len(finalTemplates)*int(inputProvider.Count())))
 
+	if req.TemplateThreads >= 1 {
+		scanCtx.typesOptions.TemplateThreads = req.TemplateThreads
+	}
+
+	if req.Timeout >= 1 {
+		scanCtx.typesOptions.Timeout = req.Timeout
+	}
+
 	_ = scanCtx.executer.Execute(ctx, finalTemplates, inputProvider)
 
 	gologger.Info().Msgf("[scans] [worker] [%d] finished scan for ID", req.ScanID)
