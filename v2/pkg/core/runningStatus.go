@@ -40,7 +40,7 @@ func AddTemplateTimestamp(tplId, ct, color, msg string, status int) {
 		Content:   ct,
 		Color:     color,
 		Status:    status,
-		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
+		Timestamp: time.Now().Format("2006-01-02 15:04:05.000000000"),
 		Msg:       msg,
 	}
 	v := []Stamp{}
