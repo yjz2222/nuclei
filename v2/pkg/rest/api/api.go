@@ -53,55 +53,57 @@ func New(config *Config) *API {
 	}))
 	// Use basic auth
 	//e.Use(HeaderAuthenticator(config.Token))
-	e.POST("/login", config.Server.Login)
-	e.POST("/modPwd", config.Server.ModPwd)
 
 	apiGroup := e.Group("/api/v1")
-	apiGroup.Use(middleware.JWT([]byte(handlers.JWT_KEY)))
+
+	apiGroup.POST("/login", config.Server.Login)
+	apiGroup.POST("/modPwd", config.Server.ModPwd)
+	authorizedGroup := e.Group("/authorized")
+	authorizedGroup.Use(middleware.JWT([]byte(handlers.JWT_KEY)))
 
 	// /templates endpoints
-	apiGroup.GET("/templates", config.Server.GetTemplates)
-	apiGroup.POST("/templates", config.Server.AddTemplate)
-	apiGroup.PUT("/templates", config.Server.UpdateTemplate)
-	apiGroup.DELETE("/templates", config.Server.DeleteTemplate)
-	apiGroup.GET("/templates/raw", config.Server.GetTemplatesRaw)
-	apiGroup.POST("/templates/execute", config.Server.ExecuteTemplate)
-	apiGroup.POST("/templates/file", config.Server.FileUpload)
+	authorizedGroup.GET("/templates", config.Server.GetTemplates)
+	authorizedGroup.POST("/templates", config.Server.AddTemplate)
+	authorizedGroup.PUT("/templates", config.Server.UpdateTemplate)
+	authorizedGroup.DELETE("/templates", config.Server.DeleteTemplate)
+	authorizedGroup.GET("/templates/raw", config.Server.GetTemplatesRaw)
+	authorizedGroup.POST("/templates/execute", config.Server.ExecuteTemplate)
+	authorizedGroup.POST("/templates/file", config.Server.FileUpload)
 
 	// /targets endpoints
-	apiGroup.GET("/targets", config.Server.GetTargets)
-	apiGroup.POST("/targets", config.Server.AddTarget)
-	apiGroup.PUT("/targets/:id", config.Server.UpdateTarget)
-	apiGroup.DELETE("/targets/:id", config.Server.DeleteTarget)
-	apiGroup.GET("/targets/:id", config.Server.GetTargetContents)
+	authorizedGroup.GET("/targets", config.Server.GetTargets)
+	authorizedGroup.POST("/targets", config.Server.AddTarget)
+	authorizedGroup.PUT("/targets/:id", config.Server.UpdateTarget)
+	authorizedGroup.DELETE("/targets/:id", config.Server.DeleteTarget)
+	authorizedGroup.GET("/targets/:id", config.Server.GetTargetContents)
 
 	// /settings endpoints
-	apiGroup.GET("/settings", config.Server.GetSettings)
-	apiGroup.POST("/settings", config.Server.SetSetting)
-	apiGroup.GET("/settings/:name", config.Server.GetSettingByName)
-	apiGroup.PUT("/settings/:name", config.Server.UpdateSettingByName)
+	authorizedGroup.GET("/settings", config.Server.GetSettings)
+	authorizedGroup.POST("/settings", config.Server.SetSetting)
+	authorizedGroup.GET("/settings/:name", config.Server.GetSettingByName)
+	authorizedGroup.PUT("/settings/:name", config.Server.UpdateSettingByName)
 
 	// /scans endpoints
-	apiGroup.GET("/scans", config.Server.GetScans)
-	apiGroup.POST("/scans", config.Server.AddScan)
-	apiGroup.GET("/scans/progress", config.Server.GetScanProgress)
-	apiGroup.GET("/scans/:id", config.Server.GetScan)
-	apiGroup.PUT("/scans/:id", config.Server.UpdateScan)
-	apiGroup.DELETE("/scans/:id", config.Server.DeleteScan)
-	apiGroup.GET("/scans/:id/execute", config.Server.ExecuteScan)
-	apiGroup.GET("/scans/:id/matches", config.Server.GetScanMatches)
-	apiGroup.GET("/scans/:id/errors", config.Server.GetScanErrors)
+	authorizedGroup.GET("/scans", config.Server.GetScans)
+	authorizedGroup.POST("/scans", config.Server.AddScan)
+	authorizedGroup.GET("/scans/progress", config.Server.GetScanProgress)
+	authorizedGroup.GET("/scans/:id", config.Server.GetScan)
+	authorizedGroup.PUT("/scans/:id", config.Server.UpdateScan)
+	authorizedGroup.DELETE("/scans/:id", config.Server.DeleteScan)
+	authorizedGroup.GET("/scans/:id/execute", config.Server.ExecuteScan)
+	authorizedGroup.GET("/scans/:id/matches", config.Server.GetScanMatches)
+	authorizedGroup.GET("/scans/:id/errors", config.Server.GetScanErrors)
 	//获取模板执行进度
-	apiGroup.GET("/scans/:id/progress", config.Server.GetScanTmpStatus)
+	authorizedGroup.GET("/scans/:id/progress", config.Server.GetScanTmpStatus)
 	//获取当前或上一次执行的某个模板的时间轴
-	apiGroup.GET("/scans/:tid/stamp", config.Server.GetScanTmpStamp)
+	authorizedGroup.GET("/scans/:tid/stamp", config.Server.GetScanTmpStamp)
 
 	// /issues endpoints
-	apiGroup.GET("/issues", config.Server.GetIssues)
-	apiGroup.POST("/issues", config.Server.AddIssue)
-	apiGroup.GET("/issues/:id", config.Server.GetIssue)
-	apiGroup.PUT("/issues/:id", config.Server.UpdateIssue)
-	apiGroup.DELETE("/issues/:id", config.Server.DeleteIssue)
+	authorizedGroup.GET("/issues", config.Server.GetIssues)
+	authorizedGroup.POST("/issues", config.Server.AddIssue)
+	authorizedGroup.GET("/issues/:id", config.Server.GetIssue)
+	authorizedGroup.PUT("/issues/:id", config.Server.UpdateIssue)
+	authorizedGroup.DELETE("/issues/:id", config.Server.DeleteIssue)
 
 	return &API{echo: e}
 }
