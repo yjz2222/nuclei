@@ -168,6 +168,9 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 	} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
 	}
+	if tpl.Requests() == 0 {
+		return echo.NewHTTPError(400, "不能新增请求为空的POC模板")
+	}
 
 	id, err := s.db.AddTemplate(context.Background(), dbsql.AddTemplateParams{
 		Contents: body.Contents,
