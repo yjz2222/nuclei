@@ -158,9 +158,12 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 	if err := jsoniter.NewDecoder(ctx.Request().Body).Decode(&body); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not unmarshal body").Error())
 	}
-	if tpl, err := templates.Parse(strings.NewReader(body.Contents), "", nil, *testutils.NewMockExecuterOptions(testutils.DefaultOptions, &testutils.TemplateInfo{})); err != nil {
-		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
-	} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
+	//if tpl, err := templates.Parse(strings.NewReader(body.Contents), "", nil, *testutils.NewMockExecuterOptions(testutils.DefaultOptions, &testutils.TemplateInfo{})); err != nil {
+	//	return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
+	//} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
+	//	return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
+	//}
+	if err := parsers.CheckTemplate(body.Contents); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
 	}
 

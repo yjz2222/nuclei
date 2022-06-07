@@ -158,3 +158,22 @@ func ParseTemplate(templatePath string) (*templates.Template, error) {
 	}
 	return template, nil
 }
+
+func CheckTemplate(content string) error {
+	template := &templates.Template{}
+	if err := yaml.UnmarshalStrict([]byte(content), template); err != nil {
+		errString := err.Error()
+		if !fieldErrorRegexp.MatchString(errString) {
+			stats.Increment(SyntaxErrorStats)
+			return err
+		}
+		stats.Increment(SyntaxWarningStats)
+		if ShouldValidate {
+			gologger.Error().Msgf("Syntax warnings check for template : %s", err)
+		} else {
+			gologger.Warning().Msgf("Syntax warnings check for template : %s", err)
+		}
+		return err
+	}
+	return nil
+}
