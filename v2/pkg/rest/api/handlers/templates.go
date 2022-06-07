@@ -163,7 +163,9 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 	//} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
 	//	return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
 	//}
-	if err := parsers.CheckTemplate(body.Contents); err != nil {
+	if tpl, err := parsers.CheckTemplate(body.Contents); err != nil {
+		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
+	} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
 	}
 
