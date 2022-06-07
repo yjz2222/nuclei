@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"github.com/projectdiscovery/nuclei/v2/pkg/parsers"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -163,7 +162,8 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 	//} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
 	//	return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
 	//}
-	if tpl, err := parsers.CheckTemplate(body.Contents); err != nil {
+	tpl, err := parsers.CheckTemplate(body.Contents)
+	if err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
 	} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
@@ -173,7 +173,7 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 		Contents: body.Contents,
 		Folder:   body.Folder,
 		Path:     body.Path,
-		Name:     filepath.Base(body.Path),
+		Name:     tpl.ID,
 	})
 	if err != nil {
 		return echo.NewHTTPError(500, errors.Wrap(err, "could not add template to db").Error())
