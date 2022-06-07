@@ -231,7 +231,13 @@ func (s *ScanService) worker(req ScanRequest) error {
 		return errors.Wrap(err, "could not get setting")
 	}
 	gologger.Info().Msgf("[scans] [worker] [%d] loaded settings for config %s", req.ScanID, req.Config)
+	if req.TemplateThreads >= 1 {
+		typesOptions.TemplateThreads = req.TemplateThreads
+	}
 
+	if req.Timeout >= 1 {
+		typesOptions.Timeout = req.Timeout
+	}
 	templatesDirectory, templatesList, workflowsList, err := s.storeTemplatesFromRequest(req.Templates)
 
 	if err != nil {
@@ -272,14 +278,6 @@ func (s *ScanService) worker(req ScanRequest) error {
 	gologger.Info().Msgf("[scans] [worker] [%d] total loaded input count: %d", req.ScanID, inputProvider.Count())
 
 	scanCtx.executerOpts.Progress.Init(inputProvider.Count(), len(finalTemplates), int64(len(finalTemplates)*int(inputProvider.Count())))
-
-	if req.TemplateThreads >= 1 {
-		scanCtx.typesOptions.TemplateThreads = req.TemplateThreads
-	}
-
-	if req.Timeout >= 1 {
-		scanCtx.typesOptions.Timeout = req.Timeout
-	}
 
 	_ = scanCtx.executer.Execute(ctx, finalTemplates, inputProvider)
 
