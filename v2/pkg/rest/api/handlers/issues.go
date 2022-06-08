@@ -196,7 +196,7 @@ func (s *Server) DeleteIssue(ctx echo.Context) error {
 func (s *Server) FileUpload(ctx echo.Context) error {
 	form, err := ctx.MultipartForm()
 	if err != nil {
-		return echo.NewHTTPError(400, errors.Wrap(err, "Could not parse file").Error())
+		return echo.NewHTTPError(400, fmt.Sprintf("读取FORM信息失败，原始错误信息：%s", err.Error()))
 	}
 
 	files := form.File["files"]
@@ -204,7 +204,7 @@ func (s *Server) FileUpload(ctx echo.Context) error {
 	for i := range files {
 		src, err := files[i].Open()
 		if err != nil {
-			return echo.NewHTTPError(500, errors.Wrap(err, "Fail to open the file").Error())
+			return echo.NewHTTPError(500, fmt.Sprintf("打开文件失败，原始错误信息：%s", err.Error()))
 		}
 		defer src.Close()
 
@@ -219,7 +219,7 @@ func (s *Server) FileUpload(ctx echo.Context) error {
 			*testutils.NewMockExecuterOptions(
 				testutils.DefaultOptions,
 				&testutils.TemplateInfo{})); err != nil {
-			return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
+			return echo.NewHTTPError(400, fmt.Sprintf("POC转换失败，原始错误信息：%s", err.Error()))
 		}
 
 		id, err := s.db.AddTemplate(context.Background(), dbsql.AddTemplateParams{
@@ -230,7 +230,7 @@ func (s *Server) FileUpload(ctx echo.Context) error {
 		})
 		ids = append(ids, id)
 		if err != nil {
-			return echo.NewHTTPError(500, errors.Wrap(err, "could not add template to db").Error())
+			return echo.NewHTTPError(500, fmt.Sprintf("添加POC数据库失败，原始错误信息：%s", err.Error()))
 		}
 
 	}

@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	mandatoryFieldMissingTemplate = "mandatory '%s' field is missing"
-	invalidFieldFormatTemplate    = "invalid field format for '%s' (allowed format is %s)"
+	mandatoryFieldMissingTemplate = "必要字段 '%s' 缺失"
+	invalidFieldFormatTemplate    = "无效的字段格式 '%s' (允许的字段格式为 %s)"
 )
 
 // LoadTemplate returns true if the template is valid and matches the filtering criteria.
