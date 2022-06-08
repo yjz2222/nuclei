@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/projectdiscovery/nuclei/v2/pkg/parsers"
 	"strings"
 	"time"
@@ -155,7 +156,7 @@ type AddTemplateRequest struct {
 func (s *Server) AddTemplate(ctx echo.Context) error {
 	var body AddTemplateRequest
 	if err := jsoniter.NewDecoder(ctx.Request().Body).Decode(&body); err != nil {
-		return echo.NewHTTPError(400, errors.Wrap(err, "could not unmarshal body").Error())
+		return echo.NewHTTPError(400, fmt.Sprintf("反序列化失败，原始错误信息：%s", err.Error()))
 	}
 	//if tpl, err := templates.Parse(strings.NewReader(body.Contents), "", nil, *testutils.NewMockExecuterOptions(testutils.DefaultOptions, &testutils.TemplateInfo{})); err != nil {
 	//	return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
@@ -166,7 +167,7 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
 	} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
-		return echo.NewHTTPError(400, errors.Wrap(err, "could not parse template").Error())
+		return echo.NewHTTPError(400, fmt.Sprintf("POC模板校验失败，原始错误信息：%s", err.Error()))
 	}
 	if tpl.Requests() == 0 {
 		return echo.NewHTTPError(400, "不能新增请求为空的POC模板")
@@ -179,7 +180,7 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 		Name:     tpl.ID,
 	})
 	if err != nil {
-		return echo.NewHTTPError(500, errors.Wrap(err, "could not add template to db").Error())
+		return echo.NewHTTPError(500, fmt.Sprintf("POC数据库持久化失败，原始错误信息：%s", err.Error()))
 	}
 	return ctx.JSON(200, map[string]int64{"id": id})
 }
@@ -193,11 +194,11 @@ type DeleteTemplateRequest struct {
 func (s *Server) DeleteTemplate(ctx echo.Context) error {
 	var body DeleteTemplateRequest
 	if err := jsoniter.NewDecoder(ctx.Request().Body).Decode(&body); err != nil {
-		return echo.NewHTTPError(400, errors.Wrap(err, "could not unmarshal body").Error())
+		return echo.NewHTTPError(400, fmt.Sprintf("反序列化失败，原始错误信息：%s", err.Error()))
 	}
 	err := s.db.DeleteTemplate(context.Background(), body.Ids)
 	if err != nil {
-		return echo.NewHTTPError(500, errors.Wrap(err, "could not delete template to db").Error())
+		return echo.NewHTTPError(500, fmt.Sprintf("数据库处理失败，原始错误信息：%s", err.Error()))
 	}
 	return err
 }
