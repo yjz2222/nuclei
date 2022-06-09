@@ -1,19 +1,14 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
-	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"github.com/projectdiscovery/nuclei/v2/pkg/rest/db/dbsql"
-	"github.com/projectdiscovery/nuclei/v2/pkg/templates"
-	"github.com/projectdiscovery/nuclei/v2/pkg/testutils"
 )
 
 // AddIssueRequest is a request for /issues addition
@@ -190,50 +185,4 @@ func (s *Server) DeleteIssue(ctx echo.Context) error {
 		return echo.NewHTTPError(500, errors.Wrap(err, "could not delete issue").Error())
 	}
 	return nil
-}
-
-// File Upload handlers /file upload route
-func (s *Server) FileUpload(ctx echo.Context) error {
-	form, err := ctx.MultipartForm()
-	if err != nil {
-		return echo.NewHTTPError(400, fmt.Sprintf("读取FORM信息失败，原始错误信息：%s", err.Error()))
-	}
-
-	files := form.File["files"]
-	ids := make([]int64, 0, len(files))
-	for i := range files {
-		src, err := files[i].Open()
-		if err != nil {
-			return echo.NewHTTPError(500, fmt.Sprintf("打开文件失败，原始错误信息：%s", err.Error()))
-		}
-		defer src.Close()
-
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(src)
-		FileContents := buf.String()
-
-		if _, err := templates.Parse(
-			strings.NewReader(FileContents),
-			"",
-			nil,
-			*testutils.NewMockExecuterOptions(
-				testutils.DefaultOptions,
-				&testutils.TemplateInfo{})); err != nil {
-			return echo.NewHTTPError(400, fmt.Sprintf("POC转换失败，原始错误信息：%s", err.Error()))
-		}
-
-		id, err := s.db.AddTemplate(context.Background(), dbsql.AddTemplateParams{
-			Contents: FileContents,
-			Folder:   ctx.FormValue("folder"),
-			Path:     fmt.Sprintf("%v/%v", ctx.FormValue("path"), files[i].Filename),
-			Name:     files[i].Filename,
-		})
-		ids = append(ids, id)
-		if err != nil {
-			return echo.NewHTTPError(500, fmt.Sprintf("添加POC数据库失败，原始错误信息：%s", err.Error()))
-		}
-
-	}
-	return ctx.JSON(200, ids)
-
 }

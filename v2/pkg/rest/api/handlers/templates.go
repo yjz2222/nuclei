@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
@@ -169,9 +170,6 @@ func (s *Server) AddTemplate(ctx echo.Context) error {
 	} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
 		return echo.NewHTTPError(400, fmt.Sprintf("POC模板校验失败，原始错误信息：%s", err.Error()))
 	}
-	if tpl.Requests() == 0 {
-		return echo.NewHTTPError(400, "不能新增请求为空的POC模板")
-	}
 
 	id, err := s.db.AddTemplate(context.Background(), dbsql.AddTemplateParams{
 		Contents: body.Contents,
@@ -252,4 +250,61 @@ func (s *Server) ExecuteTemplate(ctx echo.Context) error {
 	}
 	resp := &ExecuteTemplateResponse{Debug: debugData, Output: results}
 	return ctx.JSON(200, resp)
+}
+
+// File Upload handlers /file upload route
+func (s *Server) FileUpload(ctx echo.Context) error {
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		return echo.NewHTTPError(400, fmt.Sprintf("读取FORM信息失败，原始错误信息：%s", err.Error()))
+	}
+
+	files := form.File["files"]
+	ids := make([]int64, 0, len(files))
+	errFiles := make([]string, 0, len(files))
+	for i := range files {
+		src, err := files[i].Open()
+		if err != nil {
+			errFiles = append(errFiles, files[i].Filename+fmt.Sprintf("打开文件失败，原始错误信息：%s", err.Error()))
+			continue
+		}
+		defer src.Close()
+
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(src)
+		FileContents := buf.String()
+
+		tpl, err := parsers.CheckTemplate(FileContents)
+		if err != nil {
+			errFiles = append(errFiles, files[i].Filename+fmt.Sprintf("转换失败：%s", err.Error()))
+			continue
+		} else if err = parsers.ValidateTemplateFields(tpl); err != nil {
+			errFiles = append(errFiles, files[i].Filename+fmt.Sprintf("校验失败：%s", err.Error()))
+			continue
+		}
+
+		id, err := s.db.AddTemplate(context.Background(), dbsql.AddTemplateParams{
+			Contents: FileContents,
+			Folder:   ctx.FormValue("folder"),
+			Path:     fmt.Sprintf("%v/%v.yaml", ctx.FormValue("path"), files[i].Filename),
+			Name:     files[i].Filename,
+		})
+
+		if err != nil {
+			errFiles = append(errFiles, files[i].Filename+"添加POC数据库失败,重复文件名")
+			continue
+		} else {
+			ids = append(ids, id)
+		}
+
+	}
+	if len(errFiles) > 0 {
+		errMsg := fmt.Sprintf("成功保存%d条，失败%d条：\n", len(ids), len(errFiles))
+		for i := range errFiles {
+			errMsg += errFiles[i] + "\n"
+		}
+		return echo.NewHTTPError(500, errMsg)
+	}
+	return ctx.JSON(200, ids)
+
 }

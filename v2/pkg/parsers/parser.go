@@ -1,6 +1,7 @@
 package parsers
 
 import (
+	"errors"
 	"fmt"
 	"github.com/projectdiscovery/nuclei/v2/pkg/core"
 	"regexp"
@@ -175,5 +176,9 @@ func CheckTemplate(content string) (*templates.Template, error) {
 		}
 		return nil, err
 	}
-	return template, nil
+	var err error
+	if template.Requests() == 0 {
+		err = errors.New("无请求空模板")
+	}
+	return template, err
 }
