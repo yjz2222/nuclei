@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"time"
 
 	"github.com/blang/semver"
 	"github.com/google/uuid"
@@ -101,13 +102,22 @@ func process() error {
 	scans := scans.NewScanService(*logsdir, false, 1, dbInstance, targets, database)
 	defer scans.Close()
 
+	expTime, err := checkLicense()
+	if err != nil {
+		gologger.Error().Msgf("Check License error: %s\n", err)
+	} else if expTime == nil {
+		gologger.Info().Msgf("License with no time limit\n")
+	} else if expTime != nil {
+		gologger.Info().Msgf("License expiry time: %s\n", expTime.String())
+	}
+
 	server := handlers.New(dbInstance, targets, scans)
 
 	authToken := *token
 	if authToken == "" {
 		authToken = uuid.NewString()
 	}
-	gologger.Info().Msgf("Using authentication token: %s", authToken)
+	//gologger.Info().Msgf("Using authentication token: %s", authToken)
 
 	api := api.New(&api.Config{
 		Token:  authToken,
@@ -138,4 +148,8 @@ func showBanner() {
 
 	fmt.Printf("Use with caution. You are responsible for your actions.\n")
 	fmt.Printf("Developers assume no liability and are not responsible for any misuse or damage.\n")
+}
+
+func checkLicense() (*time.Time, error) {
+	return nil, nil
 }

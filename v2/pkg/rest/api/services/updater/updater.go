@@ -85,7 +85,7 @@ func RunUpdateChecker(db *db.Database) context.CancelFunc {
 
 const (
 	userName = "projectdiscovery"
-	repoName = "nuclei-templates"
+	repoName = "mypoc-templates"
 )
 
 // UpdateTemplates takes a db and writes templates to db.
@@ -165,7 +165,7 @@ func UpdateTemplates(db *db.Database, lastVersion semver.Version) (semver.Versio
 func getLatestReleaseFromGithub(latestTag string) (*github.RepositoryRelease, error) {
 	gitHubClient := github.NewClient(nil)
 
-	release, _, err := gitHubClient.Repositories.GetReleaseByTag(context.Background(), userName, repoName, "v"+latestTag)
+	release, _, err := gitHubClient.Repositories.GetReleaseByTag(context.Background(), userName, "nuclei-templates", "v"+latestTag)
 	if err != nil {
 		return nil, err
 	}
